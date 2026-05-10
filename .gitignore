@@ -43,3 +43,19 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Backup files
+*.backup
+*.bak
+*~
+
+# Local secrets / env
+.env
+.env.*
+local.properties
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+
+# macOS
+.DS_Store
+**/.DS_Store

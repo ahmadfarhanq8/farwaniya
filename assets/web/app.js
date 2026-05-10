@@ -22,6 +22,33 @@ const _loginAttempts = {};
 const _LOGIN_MAX = 5;
 const _LOGIN_LOCKOUT_MS = 5 * 60 * 1000; // 5 دقائق
 
+// ─── كشف انقطاع الاتصال ──────────────────────────────────────
+(function setupOfflineDetection(){
+    function updateOnline(){
+        const banner = document.getElementById('offline-banner');
+        if (!banner) return;
+        if (navigator.onLine) {
+            banner.style.display = 'none';
+            // عند العودة، أعد تحميل البيانات تلقائياً
+            if (window._wasOffline && typeof loadAllData === 'function' && typeof currentUser !== 'undefined' && currentUser) {
+                window._wasOffline = false;
+                loadAllData().then(() => {
+                    if (typeof refreshAllRoleScreens === 'function') refreshAllRoleScreens();
+                    if (typeof showToast === 'function') showToast('✓ عاد الاتصال — تم تحديث البيانات', 'success');
+                }).catch(()=>{});
+            }
+        } else {
+            banner.style.display = 'block';
+            window._wasOffline = true;
+        }
+    }
+    window.addEventListener('online', updateOnline);
+    window.addEventListener('offline', updateOnline);
+    document.addEventListener('DOMContentLoaded', updateOnline);
+    // تأكد عند التحميل
+    setTimeout(updateOnline, 500);
+})();
+
 // ─── تعقيم HTML لمنع XSS ───────────────────────────────────
 function escapeHtml(str) {
     if (str == null) return '';
@@ -75,12 +102,23 @@ async function withButtonLoading(btnOrEvent, fn, errPrefix = 'حدث خطأ') {
 // استخراج رسالة خطأ مفهومة من نتائج Supabase أو exceptions
 function extractErrorMessage(err) {
     if (!err) return '';
-    if (typeof err === 'string') return err;
-    if (err.error && typeof err.error === 'string') return err.error;
-    if (err.error && err.error.message) return err.error.message;
-    if (err.message) return err.message;
-    if (err.details) return err.details;
-    if (err.hint)    return err.hint;
+    // كشف أخطاء الشبكة
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        return 'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة وإعادة المحاولة.';
+    }
+    if (typeof err === 'string') {
+        if (/network|fetch|failed to fetch|networkerror/i.test(err)) {
+            return 'فشل الاتصال بالخادم. تحقق من الإنترنت وحاول مجدداً.';
+        }
+        return err;
+    }
+    const msg = (err.error && typeof err.error === 'string') ? err.error
+              : (err.error && err.error.message) ? err.error.message
+              : err.message || err.details || err.hint || '';
+    if (msg && /network|fetch|failed to fetch|networkerror|timeout/i.test(msg)) {
+        return 'فشل الاتصال بالخادم. تحقق من الإنترنت وحاول مجدداً.';
+    }
+    if (msg) return msg;
     try { return JSON.stringify(err); } catch(_) { return String(err); }
 }
 
@@ -92,6 +130,50 @@ function extractErrorMessage(err) {
     s.textContent = '@keyframes _spin{to{transform:rotate(360deg)}}';
     (document.head || document.documentElement).appendChild(s);
 })();
+
+// ─── ضمان تحميل البيانات قبل فتح أي نافذة تعتمد على قوائم الموظفين/الضباط ───
+// كاش لمنع التحميل المتكرر خلال فترة قصيرة
+const _ensureLoadedCache = { ts: 0 };
+const _ENSURE_LOADED_TTL = 3000; // 3 ثوانٍ
+
+async function ensureDataLoaded(opts) {
+    opts = opts || {};
+    const needEmployees = opts.employees !== false;
+    const needOfficers  = opts.officers  !== false;
+    const force         = !!opts.force;
+    const now = Date.now();
+    // تجنّب الإعادة لو حُمِّلت مؤخراً
+    if (!force && (now - _ensureLoadedCache.ts) < _ENSURE_LOADED_TTL) {
+        if ((!needEmployees || employees.length > 0) && (!needOfficers || officers.length > 0)) return;
+    }
+    try {
+        const tasks = [];
+        if (needEmployees && window.db && typeof window.db.getEmployees === 'function') {
+            tasks.push(window.db.getEmployees().then(r => { if (Array.isArray(r)) employees = r; }));
+        }
+        if (needOfficers && window.db && typeof window.db.getOfficers === 'function') {
+            tasks.push(window.db.getOfficers().then(r => { if (Array.isArray(r)) officers = r; }));
+        }
+        await Promise.all(tasks);
+        _ensureLoadedCache.ts = Date.now();
+    } catch (e) {
+        console.warn('ensureDataLoaded warning:', e);
+    }
+}
+
+// إعادة رسم كل الشاشات المرتبطة بالطلبات (إجازات/استئذانات/طلبات)
+// يُستدعى بعد أي عملية approve/reject/save لتحديث UI الأدوار الثلاثة
+function refreshAllRoleScreens(opts) {
+    opts = opts || {};
+    if (opts.skipAdmin !== true) {
+        if (typeof renderLeaves      === 'function') try { renderLeaves();      } catch(_) {}
+        if (typeof renderPermissions === 'function') try { renderPermissions(); } catch(_) {}
+    }
+    if (typeof loadEmployeeDashboard === 'function') try { loadEmployeeDashboard(); } catch(_) {}
+    if (typeof loadEmployeeRequests  === 'function') try { loadEmployeeRequests();  } catch(_) {}
+    if (typeof loadOfficerDashboard  === 'function') try { loadOfficerDashboard();  } catch(_) {}
+    if (typeof loadOfficerRequests   === 'function') try { loadOfficerRequests();   } catch(_) {}
+}
 
 
 function getAdminNotificationMeta(type) {
@@ -353,7 +435,7 @@ async function _saveFCMTokenForCurrentUser() {
             if (token) {
                 const personId = currentUser.employeeId || currentUser.officerId || null;
                 await window.db.saveFCMToken({ role: currentUser.role, token, personId });
-                console.log('✅ FCM token saved for role:', currentUser.role, 'personId:', personId);
+                // FCM token saved
                 return;
             }
         } catch(e) { console.warn('FCM token attempt', attempt + 1, 'error:', e); }
@@ -662,11 +744,7 @@ async function approveLeave(id) {
     
     // تحديث كل البيانات وإعادة عرض كل القوائم ذات الصلة
     await loadAllData();
-    renderLeaves();
-    if (typeof loadEmployeeDashboard === 'function') loadEmployeeDashboard();
-    if (typeof loadEmployeeRequests === 'function') loadEmployeeRequests();
-    if (typeof loadOfficerDashboard === 'function') loadOfficerDashboard();
-    if (typeof loadOfficerRequests === 'function') loadOfficerRequests();
+    refreshAllRoleScreens();
     showToast('تمت الموافقة على الإجازة ✅', 'success');
 }
 
@@ -708,11 +786,7 @@ async function rejectLeave(id) {
     }
     
     await loadAllData();
-    renderLeaves();
-    if (typeof loadEmployeeDashboard === 'function') loadEmployeeDashboard();
-    if (typeof loadEmployeeRequests === 'function') loadEmployeeRequests();
-    if (typeof loadOfficerDashboard === 'function') loadOfficerDashboard();
-    if (typeof loadOfficerRequests === 'function') loadOfficerRequests();
+    refreshAllRoleScreens();
     showToast('تم رفض الإجازة', 'error');
 }
 
@@ -755,11 +829,7 @@ async function approvePermission(id) {
     }
     
     await loadAllData();
-    await renderPermissions();
-    if (typeof loadEmployeeDashboard === 'function') loadEmployeeDashboard();
-    if (typeof loadEmployeeRequests === 'function') loadEmployeeRequests();
-    if (typeof loadOfficerDashboard === 'function') loadOfficerDashboard();
-    if (typeof loadOfficerRequests === 'function') loadOfficerRequests();
+    refreshAllRoleScreens();
     showToast('تمت الموافقة على الاستئذان ✅', 'success');
 }
 
@@ -802,11 +872,7 @@ async function rejectPermission(id) {
     }
     
     await loadAllData();
-    await renderPermissions();
-    if (typeof loadEmployeeDashboard === 'function') loadEmployeeDashboard();
-    if (typeof loadEmployeeRequests === 'function') loadEmployeeRequests();
-    if (typeof loadOfficerDashboard === 'function') loadOfficerDashboard();
-    if (typeof loadOfficerRequests === 'function') loadOfficerRequests();
+    refreshAllRoleScreens();
     showToast('تم رفض الاستئذان', 'error');
 }
 
@@ -910,7 +976,7 @@ function loadEmployeeDashboard() {
     const emp = getEmployees().find(e => e.id == user.employeeId);
     if (!emp) return;
 
-    const myLeaves = getLeaves().filter(l => l.person_id == emp.id && normalizeApprovalStatus(l.status) !== 'rejected');
+    const myLeaves = getLeaves().filter(l => l.person_type === 'employee' && l.person_id == emp.id && normalizeApprovalStatus(l.status) !== 'rejected');
 
     const now = new Date();
     const myPermissions = getPermissions().filter(p => {
@@ -945,7 +1011,24 @@ function loadEmployeeDashboard() {
     // حالة الإجازة
     const statusEl = document.getElementById('leave-status');
     if (statusEl) {
-        statusEl.textContent = myLeaves.length > 0 ? '🟢 لديك إجازة' : '⚪ لا توجد إجازة';
+        const card = statusEl.closest('.emp-leave-card');
+        const subEl = card ? card.querySelector('.emp-leave-content p:nth-child(2)') : null;
+        const iconEl = card ? card.querySelector('.emp-leave-icon') : null;
+        const activeLeave = myLeaves.find(l => getLeaveStatus(l) === 'جارية' && normalizeApprovalStatus(l.status) === 'approved');
+        if (activeLeave) {
+            statusEl.textContent = '🌴 أنت في إجازة';
+            if (subEl) subEl.textContent = `${activeLeave.leave_type || 'إجازة'} • ${activeLeave.start_date} → ${activeLeave.end_date}`;
+            if (iconEl) iconEl.textContent = '🌴';
+            if (card) {
+                card.style.cursor = 'pointer';
+                card.onclick = () => showLeaveDetails(activeLeave.id);
+            }
+        } else {
+            statusEl.textContent = 'لا توجد إجازة نشطة';
+            if (subEl) subEl.textContent = 'أنت على رأس العمل حالياً';
+            if (iconEl) iconEl.textContent = '✓';
+            if (card) { card.style.cursor = ''; card.onclick = null; }
+        }
     }
 
     // آخر الطلبات (إجازات + استئذانات + طلبات أخرى - الشهر الحالي فقط، تتجدد كل بداية شهر)
@@ -1814,7 +1897,7 @@ function loadOfficerDashboard() {
 
     const allOfficers = getOfficers();
     const off = allOfficers.find(o => o.id == user.officerId);
-    console.log('[OfficerDash] officerId=', user.officerId, '| officers in DB=', allOfficers.map(o => o.id), '| found=', !!off);
+    // dashboard officer lookup
 
     if (!off) {
         const nameEl = document.getElementById('off-dash-name');
@@ -1856,7 +1939,26 @@ function loadOfficerDashboard() {
     // حالة الإجازة
     const myLeaves = getLeaves().filter(l => l.person_type === 'officer' && l.person_id == off.id && normalizeApprovalStatus(l.status) !== 'rejected');
     const statusEl = document.getElementById('off-leave-status');
-    if (statusEl) statusEl.textContent = myLeaves.length > 0 ? '🟢 لديك إجازة' : '⚪ لا توجد إجازة';
+    if (statusEl) {
+        const card = statusEl.closest('.emp-leave-card');
+        const subEl = card ? card.querySelector('.emp-leave-content p:nth-child(2)') : null;
+        const iconEl = card ? card.querySelector('.emp-leave-icon') : null;
+        const activeLeave = myLeaves.find(l => getLeaveStatus(l) === 'جارية' && normalizeApprovalStatus(l.status) === 'approved');
+        if (activeLeave) {
+            statusEl.textContent = '🌴 أنت في إجازة';
+            if (subEl) subEl.textContent = `${activeLeave.leave_type || 'إجازة'} • ${activeLeave.start_date} → ${activeLeave.end_date}`;
+            if (iconEl) iconEl.textContent = '🌴';
+            if (card) {
+                card.style.cursor = 'pointer';
+                card.onclick = () => showLeaveDetails(activeLeave.id);
+            }
+        } else {
+            statusEl.textContent = 'لا توجد إجازة نشطة';
+            if (subEl) subEl.textContent = 'أنت على رأس العمل حالياً';
+            if (iconEl) iconEl.textContent = '✓';
+            if (card) { card.style.cursor = ''; card.onclick = null; }
+        }
+    }
 
     // آخر الطلبات (الشهر الحالي)
     const now3 = new Date();
@@ -3080,7 +3182,7 @@ async function loadAllData() {
         notificationsCache = notifs;
         adminNotifications = adminNotifs;
         appSettings        = settings || {};
-        console.log('✅ تم تحميل البيانات من Supabase');
+        // Supabase data loaded
         updateBellBadge();
     } catch(e) {
         console.error('❌ خطأ في تحميل البيانات:', e);
@@ -3225,8 +3327,8 @@ async function showPage(page) {
 function updateHome() {
     const dateEl = document.getElementById('current-date');
     if (dateEl) dateEl.textContent = new Date().toLocaleDateString('ar-u-ca-gregory-nu-latn',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-    const officersOnLeave = officers.filter(o => leaves.some(l => l.person_id == o.id && getLeaveStatus(l) === 'جارية' && normalizeApprovalStatus(l.status) !== 'rejected'));
-    const employeesOnLeave = employees.filter(e => leaves.some(l => l.person_id == e.id && getLeaveStatus(l) === 'جارية' && normalizeApprovalStatus(l.status) !== 'rejected'));
+    const officersOnLeave = officers.filter(o => leaves.some(l => l.person_type === 'officer' && l.person_id == o.id && getLeaveStatus(l) === 'جارية' && normalizeApprovalStatus(l.status) !== 'rejected'));
+    const employeesOnLeave = employees.filter(e => leaves.some(l => l.person_type === 'employee' && l.person_id == e.id && getLeaveStatus(l) === 'جارية' && normalizeApprovalStatus(l.status) !== 'rejected'));
     document.getElementById('stat-officers').textContent = officers.length - officersOnLeave.length;
     document.getElementById('stat-employees').textContent = employees.length - employeesOnLeave.length;
     document.getElementById('stat-officers-on-leave').textContent = officersOnLeave.length;
@@ -4744,7 +4846,8 @@ function getArchiveTypeColor(type){
     return '#3498db';
 }
 
-function archiveUploadFile(preselectedEmpId=null, preselectedType=null){
+async function archiveUploadFile(preselectedEmpId=null, preselectedType=null){
+    await ensureDataLoaded({ employees: true, officers: false });
     const existing=document.getElementById('archive-upload-modal');if(existing)existing.remove();
     const typeOpts = defaultArchiveTypes.filter(t=>!getHiddenTypes().includes(t.key)).map(t=>`<option value="${t.key}" ${preselectedType===t.key?'selected':''}>${t.name}</option>`).join('')
         + customArchiveTypes.map(t=>`<option value="${t.key}" ${preselectedType===t.key?'selected':''}>${t.name}</option>`).join('')
@@ -5313,7 +5416,8 @@ async function renderOfficerDetailFiles(){
         </div>`).join('');
 }
 
-function offArchiveUploadFile(preselectedOffId=null, preselectedType=null){
+async function offArchiveUploadFile(preselectedOffId=null, preselectedType=null){
+    await ensureDataLoaded({ employees: false, officers: true });
     const existing=document.getElementById('off-archive-upload-modal');if(existing)existing.remove();
     const sorted = [...officers].sort((a,b)=>getRankIndex(a.rank)-getRankIndex(b.rank));
     const typeOpts = defaultArchiveTypes.filter(t=>!getHiddenTypes().includes(t.key)).map(t=>`<option value="${t.key}" ${preselectedType===t.key?'selected':''}>${t.name}</option>`).join('')
@@ -6515,12 +6619,7 @@ function closeAddLeaveModal(){const m=document.getElementById('add-leave-modal')
 
 async function initLeaveForm(){
     // تحميل الموظفين والضباط قبل فتح النافذة لضمان تعبئة القوائم
-    try {
-        if (window.db) {
-            if (typeof window.db.getEmployees === 'function') employees = await window.db.getEmployees();
-            if (typeof window.db.getOfficers === 'function')  officers  = await window.db.getOfficers();
-        }
-    } catch(_) {}
+    await ensureDataLoaded();
     showAddLeaveModal();
 }
 
@@ -7420,7 +7519,9 @@ function showAddPermissionModal(presetType, presetId){
 
 function closeAddPermModal(){const m=document.getElementById('add-perm-modal');if(m)m.remove();}
 
-function initPermissionForm() {
+async function initPermissionForm() {
+    // تحميل الموظفين والضباط قبل فتح النافذة لضمان تعبئة القوائم
+    await ensureDataLoaded();
     showAddPermissionModal();
 }
 
