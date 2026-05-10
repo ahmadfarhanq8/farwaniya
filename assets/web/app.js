@@ -161,6 +161,22 @@ async function ensureDataLoaded(opts) {
     }
 }
 
+// ─── سجل تدقيق (Audit Log) ───────────────────────────────────
+function logAudit(action, entity_type, entity_id, extras) {
+    try {
+        if (!window.db || typeof window.db.auditLog !== 'function') return;
+        const u = (typeof currentUser !== 'undefined' && currentUser) ? currentUser : {};
+        const entry = Object.assign({
+            actor       : u.username || u.name || 'unknown',
+            actor_role  : u.role || '',
+            action      : action,
+            entity_type : entity_type,
+            entity_id   : entity_id != null ? entity_id : null
+        }, extras || {});
+        window.db.auditLog(entry).catch(()=>{});
+    } catch(_) {}
+}
+
 // ─── حد أقصى لحجم الملف + ضغط الصور قبل الرفع ────────────────
 const MAX_UPLOAD_SIZE_MB = 10;
 const IMAGE_COMPRESS_THRESHOLD_MB = 2;
@@ -789,6 +805,7 @@ async function approveLeave(id) {
     });
     if (upRes && upRes.success === false) { showToast('فشل حفظ الموافقة: ' + (extractErrorMessage(upRes) || 'أعد المحاولة'), 'error'); return; }
     leave.status = 'approved';
+    logAudit('approve_leave', 'leave', leave.id, { person_id: leave.person_id, person_type: leave.person_type, details: { leave_type: leave.leave_type, start_date: leave.start_date, end_date: leave.end_date, days: leave.days } });
     
     // Send notification to employee or officer
     if (leave.person_id) {
@@ -832,6 +849,7 @@ async function rejectLeave(id) {
     });
     if (upRes && upRes.success === false) { showToast('فشل حفظ الرفض: ' + (extractErrorMessage(upRes) || 'أعد المحاولة'), 'error'); return; }
     leave.status = 'rejected';
+    logAudit('reject_leave', 'leave', leave.id, { person_id: leave.person_id, person_type: leave.person_type, details: { leave_type: leave.leave_type, start_date: leave.start_date, end_date: leave.end_date } });
     
     // Send notification to employee or officer
     if (leave.person_id) {
@@ -874,6 +892,7 @@ async function approvePermission(id) {
         return;
     }
     permission.status = 'approved';
+    logAudit('approve_permission', 'permission', permission.id, { person_id: permission.person_id, person_type: permission.person_type, details: { date: permission.date, type: permission.type } });
     
     // Send notification to employee
     const personId = permission.person_id != null ? permission.person_id : permission.employee_id;
@@ -917,6 +936,7 @@ async function rejectPermission(id) {
         return;
     }
     permission.status = 'rejected';
+    logAudit('reject_permission', 'permission', permission.id, { person_id: permission.person_id, person_type: permission.person_type, details: { date: permission.date, type: permission.type } });
     
     // Send notification to employee
     const personId = permission.person_id != null ? permission.person_id : permission.employee_id;

@@ -942,6 +942,49 @@
     async function initDB() { return {}; }
 
     // ═══════════════════════════════════════════════════════════
+    // Audit Log
+    // ═══════════════════════════════════════════════════════════
+    async function auditLog(entry) {
+        try {
+            if (!_sb) return null;
+            const row = {
+                actor       : (entry.actor       || '').toString(),
+                actor_role  : (entry.actor_role  || '').toString(),
+                action      : (entry.action      || '').toString(),
+                entity_type : (entry.entity_type || '').toString(),
+                entity_id   : entry.entity_id != null ? Number(entry.entity_id) : null,
+                person_id   : entry.person_id != null ? Number(entry.person_id) : null,
+                person_type : entry.person_type || null,
+                details     : entry.details || {}
+            };
+            const { error } = await _sb.from('audit_log').insert([row]);
+            if (error) console.warn('auditLog warning:', error);
+            return !error;
+        } catch (e) {
+            console.warn('auditLog exception:', e);
+            return false;
+        }
+    }
+
+    async function auditLogList(opts) {
+        opts = opts || {};
+        try {
+            if (!_sb) return [];
+            let q = _sb.from('audit_log').select('*').order('created_at', { ascending: false });
+            if (opts.limit)       q = q.limit(opts.limit);
+            if (opts.entity_type) q = q.eq('entity_type', opts.entity_type);
+            if (opts.entity_id)   q = q.eq('entity_id', opts.entity_id);
+            if (opts.action)      q = q.eq('action', opts.action);
+            const { data, error } = await q;
+            if (error) { console.warn('auditLogList:', error); return []; }
+            return data || [];
+        } catch (e) {
+            console.warn('auditLogList exception:', e);
+            return [];
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // Expose window.db
     // ═══════════════════════════════════════════════════════════
     window.db = {
@@ -1045,7 +1088,10 @@
         printLeavesReport: printLeavesReport,
         printPermissionsReport: printPermissionsReport,
         printOfficersPermissionsReport: printOfficersPermissionsReport,
-        printEmployeesListReport: printEmployeesListReport
+        printEmployeesListReport: printEmployeesListReport,
+        // Audit Log
+        auditLog: auditLog,
+        auditLogList: auditLogList
     };
 
     if (document.readyState === 'loading') {
