@@ -2915,6 +2915,7 @@ async function login() {
 function logout() {
     currentUser = null;
     if (_adminPollInterval) { clearInterval(_adminPollInterval); _adminPollInterval = null; }
+    try { if (window.DB && DB.logout) DB.logout(); } catch (e) {}
     showLoginScreen();
 }
 

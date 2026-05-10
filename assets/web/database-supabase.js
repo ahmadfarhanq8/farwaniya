@@ -857,12 +857,49 @@
         return !res.error;
     }
 
+    // صياغة الإيميل المستخدمة في auth.users لربط الحساب القديم بمستخدم Supabase Auth.
+    // يجب أن تطابق الدالة emailFor() في supabase/functions/provision-auth-user/index.ts
+    function _emailFor(username) {
+        var safe = String(username || '').trim().toLowerCase().replace(/[^a-z0-9._-]+/g, '_');
+        return safe + '@alfarwania.app';
+    }
+
+    // يحاول تسجيل الدخول عبر Supabase Auth. عند الفشل يستدعي Edge Function
+    // لتوفير/تحديث مستخدم auth ثم يعيد المحاولة. يفترض أن بيانات الدخول
+    // مُتحقَّق منها مسبقاً عبر rpc_login.
+    async function _ensureAuthSession(username, password) {
+        var sb = _require();
+        var email = _emailFor(username);
+        var first = await sb.auth.signInWithPassword({ email: email, password: password });
+        if (!first.error && first.data && first.data.session) return true;
+
+        // أنشئ/حدّث المستخدم في auth.users عبر Edge Function ثم أعد المحاولة
+        try {
+            var fnRes = await sb.functions.invoke('provision-auth-user', {
+                body: { username: username, password: password }
+            });
+            if (fnRes.error) { console.warn('provision-auth-user:', fnRes.error); return false; }
+        } catch (e) {
+            console.warn('provision-auth-user invoke failed:', e);
+            return false;
+        }
+
+        var second = await sb.auth.signInWithPassword({ email: email, password: password });
+        if (second.error) { console.warn('signInWithPassword retry:', second.error); return false; }
+        return !!(second.data && second.data.session);
+    }
+
     async function findAccount(username, password) {
         var sb = _require();
         var res = await sb.rpc('rpc_login', { p_username: username, p_password: password });
         if (res.error) { console.warn('rpc_login:', res.error); return null; }
         var row = Array.isArray(res.data) ? res.data[0] : res.data;
         if (!row) return null;
+
+        // ربط جلسة Supabase Auth (best-effort — لا نمنع الدخول إذا فشل)
+        try { await _ensureAuthSession(username, password); }
+        catch (e) { console.warn('ensureAuthSession:', e); }
+
         return {
             id        : row.id,
             username  : row.username,
@@ -870,6 +907,10 @@
             person_id : row.person_id,
             personId  : row.person_id
         };
+    }
+
+    async function logout() {
+        try { var sb = _require(); await sb.auth.signOut(); } catch (e) {}
     }
 
     async function changePassword(username, oldPassword, newPassword) {
@@ -880,7 +921,13 @@
             p_new_password: newPassword
         });
         if (res.error) return false;
-        return res.data === true;
+        var ok = res.data === true;
+        // زامن كلمة المرور في auth.users حتى يستمر signInWithPassword بالنجاح
+        if (ok) {
+            try { await _ensureAuthSession(username, newPassword); }
+            catch (e) { console.warn('sync auth password:', e); }
+        }
+        return ok;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -1107,6 +1154,7 @@
         deleteAccount: deleteAccount,
         findAccount: findAccount,
         changePassword: changePassword,
+        logout: logout,
         hashPassword: hashPassword,
         verifyPassword: verifyPassword,
         isHashed: isHashed,
