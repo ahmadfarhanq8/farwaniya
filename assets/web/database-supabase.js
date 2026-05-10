@@ -64,15 +64,27 @@
     // ═══════════════════════════════════════════════════════════
     // تهيئة Supabase
     // ═══════════════════════════════════════════════════════════
+    var _rtChannels = [];
+
     function _init() {
         if (typeof window.supabase === 'undefined' || SUPABASE_URL === 'YOUR_SUPABASE_URL') {
             console.warn('⚠️ Supabase غير مهيأ — يرجى إعداد SUPABASE_URL و SUPABASE_ANON_KEY');
             return;
         }
         try {
-            _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+            });
             console.log('✅ Supabase متصل');
-            _setupRealtime();
+
+            // الـ realtime يحتاج جلسة authenticated (بعد تشديد RLS)
+            _sb.auth.getSession().then(function (r) {
+                if (r && r.data && r.data.session) _setupRealtime();
+            });
+            _sb.auth.onAuthStateChange(function (event) {
+                if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') _setupRealtime();
+                if (event === 'SIGNED_OUT') _teardownRealtime();
+            });
         } catch (e) {
             console.error('خطأ في تهيئة Supabase:', e);
         }
@@ -125,17 +137,25 @@
 
     // ─── Realtime — إشعارات فورية بين الأجهزة ───────────────
     function _setupRealtime() {
+        if (!_sb || _rtChannels.length > 0) return; // تجنّب التكرار
         var tables = ['employees','officers','leaves','notes','statistics',
             'employee_files','officer_files','leave_permissions',
             'custom_archive_types','notifications',
             'other_requests','admin_notifications_store','app_settings'];
         tables.forEach(function (t) {
-            _sb.channel('rt:' + t)
+            var ch = _sb.channel('rt:' + t)
                 .on('postgres_changes', { event: '*', schema: 'public', table: t }, function () {
                     window.dispatchEvent(new CustomEvent('db-realtime-update', { detail: { table: t } }));
                 })
                 .subscribe();
+            _rtChannels.push(ch);
         });
+    }
+
+    function _teardownRealtime() {
+        if (!_sb) return;
+        _rtChannels.forEach(function (ch) { try { _sb.removeChannel(ch); } catch (e) {} });
+        _rtChannels = [];
     }
 
     // ═══════════════════════════════════════════════════════════
