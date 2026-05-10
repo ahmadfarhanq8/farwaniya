@@ -161,6 +161,68 @@ async function ensureDataLoaded(opts) {
     }
 }
 
+// ─── حد أقصى لحجم الملف + ضغط الصور قبل الرفع ────────────────
+const MAX_UPLOAD_SIZE_MB = 10;
+const IMAGE_COMPRESS_THRESHOLD_MB = 2;
+const IMAGE_MAX_DIMENSION = 1920;
+
+function _compressImage(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error('فشل قراءة الصورة'));
+        reader.onload = (ev) => {
+            const img = new Image();
+            img.onerror = () => reject(new Error('فشل تحميل الصورة'));
+            img.onload = () => {
+                let w = img.width, h = img.height;
+                if (w > IMAGE_MAX_DIMENSION || h > IMAGE_MAX_DIMENSION) {
+                    const ratio = Math.min(IMAGE_MAX_DIMENSION / w, IMAGE_MAX_DIMENSION / h);
+                    w = Math.round(w * ratio);
+                    h = Math.round(h * ratio);
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+                // حساب حجم تقريبي بعد الضغط
+                const bytes = Math.round((dataUrl.length - 22) * 0.75);
+                resolve({ dataUrl, size: bytes, name: file.name.replace(/\.(png|webp|tiff?|bmp|heic)$/i, '.jpg') });
+            };
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// تحقق من الحجم وضغط الصور إذا لزم. يُرجع { dataUrl, size, name } أو null عند الخطأ
+async function prepareFileForUpload(file) {
+    const maxBytes = MAX_UPLOAD_SIZE_MB * 1024 * 1024;
+    const isImage = file.type && file.type.startsWith('image/');
+    // حاول ضغط الصور الكبيرة
+    if (isImage && file.size > IMAGE_COMPRESS_THRESHOLD_MB * 1024 * 1024) {
+        try {
+            const r = await _compressImage(file);
+            if (r.size > maxBytes) {
+                showToast(`الصورة "${file.name}" كبيرة جداً حتى بعد الضغط (الحد ${MAX_UPLOAD_SIZE_MB}MB)`, 'error');
+                return null;
+            }
+            return r;
+        } catch(_) { /* fallback to original */ }
+    }
+    if (file.size > maxBytes) {
+        showToast(`الملف "${file.name}" يتجاوز الحد المسموح (${MAX_UPLOAD_SIZE_MB}MB)`, 'error');
+        return null;
+    }
+    // قراءة عادية
+    const dataUrl = await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onerror = () => reject(new Error('فشل قراءة الملف'));
+        r.onload = (ev) => resolve(ev.target.result);
+        r.readAsDataURL(file);
+    });
+    return { dataUrl, size: file.size, name: file.name };
+}
+
 // إعادة رسم كل الشاشات المرتبطة بالطلبات (إجازات/استئذانات/طلبات)
 // يُستدعى بعد أي عملية approve/reject/save لتحديث UI الأدوار الثلاثة
 function refreshAllRoleScreens(opts) {
@@ -4886,7 +4948,7 @@ async function archiveUploadFile(preselectedEmpId=null, preselectedType=null){
             <label style="font-weight:600;color:#3d5a1e;display:block;margin-bottom:6px;font-size:15px;">اختر الملفات *</label>
             <div id="arch-drop-zone" style="border:2px dashed #d1d5db;border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all 0.3s;background:#f8fafc;" onclick="document.getElementById('arch-upload-files').click()">
                 <div style="color:#94a3b8;font-size:15px;">اسحب الملفات هنا أو اضغط للاختيار</div>
-                <div style="font-size:13px;color:#cbd5e1;margin-top:4px;">pdf, jpg, png, doc, docx, xlsx</div>
+                <div style="font-size:13px;color:#cbd5e1;margin-top:4px;">pdf, jpg, png, doc, docx, xlsx (الحد 10MB)</div>
             </div>
             <input type="file" id="arch-upload-files" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xlsx,.tiff" style="display:none;">
             <div id="arch-files-preview" style="margin-top:10px;"></div>
@@ -4952,44 +5014,39 @@ async function processArchiveUpload(){
     
     let processed=0, failed=0;
     for(const file of selectedFiles){
-        const reader=new FileReader();
-        await new Promise(resolve=>{
-            reader.onload=async function(ev){
-                try{
-                    const newArchive = {
-                        person_id: parseInt(empId),
-                        employee_id: parseInt(empId),
-                        date: new Date().toISOString().slice(0, 10),
-                        status: 'pending',
-                        type,
-                        file_name: file.name,
-                        file_data: ev.target.result,
-                        file_size: formatFileSize(file.size),
-                        file_type: file.type,
-                        notes
-                    };
-                    await window.db.archiveUpload({
-                        employee_id: parseInt(empId),
-                        person_id: parseInt(empId),
-                        date: newArchive.date,
-                        status: newArchive.status,
-                        type,
-                        file_name: file.name,
-                        file_data: ev.target.result,
-                        file_size: formatFileSize(file.size),
-                        file_type: file.type,
-                        notes
-                    });
-                    addArchive(newArchive);
-                    processed++;
-                }catch(err){
-                    failed++;
-                    console.error('Upload error:', err);
-                }
-                resolve();
+        const prep = await prepareFileForUpload(file);
+        if (!prep) { failed++; continue; }
+        try{
+            const newArchive = {
+                person_id: parseInt(empId),
+                employee_id: parseInt(empId),
+                date: new Date().toISOString().slice(0, 10),
+                status: 'pending',
+                type,
+                file_name: prep.name,
+                file_data: prep.dataUrl,
+                file_size: formatFileSize(prep.size),
+                file_type: file.type,
+                notes
             };
-            reader.readAsDataURL(file);
-        });
+            await window.db.archiveUpload({
+                employee_id: parseInt(empId),
+                person_id: parseInt(empId),
+                date: newArchive.date,
+                status: newArchive.status,
+                type,
+                file_name: prep.name,
+                file_data: prep.dataUrl,
+                file_size: formatFileSize(prep.size),
+                file_type: file.type,
+                notes
+            });
+            addArchive(newArchive);
+            processed++;
+        }catch(err){
+            failed++;
+            console.error('Upload error:', err);
+        }
     }
     
     archiveFiles = await window.db.archiveGetAll();
@@ -5457,7 +5514,7 @@ async function offArchiveUploadFile(preselectedOffId=null, preselectedType=null)
             <label style="font-weight:600;color:#1e3a5f;display:block;margin-bottom:6px;font-size:15px;">اختر الملفات *</label>
             <div id="off-arch-drop-zone" style="border:2px dashed #d1d5db;border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all 0.3s;background:#f8fafc;" onclick="document.getElementById('off-arch-upload-files').click()">
                 <div style="color:#94a3b8;font-size:15px;">اسحب الملفات هنا أو اضغط للاختيار</div>
-                <div style="font-size:13px;color:#cbd5e1;margin-top:4px;">pdf, jpg, png, doc, docx, xlsx</div>
+                <div style="font-size:13px;color:#cbd5e1;margin-top:4px;">pdf, jpg, png, doc, docx, xlsx (الحد 10MB)</div>
             </div>
             <input type="file" id="off-arch-upload-files" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xlsx,.tiff" style="display:none;">
             <div id="off-arch-files-preview" style="margin-top:10px;"></div>
@@ -5516,28 +5573,23 @@ async function processOffArchiveUpload(){
     
     let processed=0, failed=0;
     for(const file of selectedFiles){
-        const reader=new FileReader();
-        await new Promise(resolve=>{
-            reader.onload=async function(ev){
-                try{
-                    await window.db.officerArchiveUpload({
-                        officer_id: parseInt(offId),
-                        type,
-                        file_name: file.name,
-                        file_data: ev.target.result,
-                        file_size: formatFileSize(file.size),
-                        file_type: file.type,
-                        notes
-                    });
-                    processed++;
-                }catch(err){
-                    failed++;
-                    console.error('Officer upload error:', err);
-                }
-                resolve();
-            };
-            reader.readAsDataURL(file);
-        });
+        const prep = await prepareFileForUpload(file);
+        if (!prep) { failed++; continue; }
+        try{
+            await window.db.officerArchiveUpload({
+                officer_id: parseInt(offId),
+                type,
+                file_name: prep.name,
+                file_data: prep.dataUrl,
+                file_size: formatFileSize(prep.size),
+                file_type: file.type,
+                notes
+            });
+            processed++;
+        }catch(err){
+            failed++;
+            console.error('Officer upload error:', err);
+        }
     }
     
     officerArchiveFiles = await window.db.officerArchiveGetAll();
