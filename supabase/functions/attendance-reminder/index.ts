@@ -1,11 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { loadServiceAccount } from "../_shared/firebase-secret.ts";
 
-const SERVICE_ACCOUNT = JSON.parse(Deno.env.get("FIREBASE_SERVICE_ACCOUNT")!);
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 async function getAccessToken(): Promise<string> {
+  const SERVICE_ACCOUNT = await loadServiceAccount();
   const now = Math.floor(Date.now() / 1000);
 
   const header  = { alg: "RS256", typ: "JWT" };
@@ -61,7 +62,7 @@ async function getAccessToken(): Promise<string> {
 serve(async (_req) => {
   try {
     const accessToken = await getAccessToken();
-    const projectId   = SERVICE_ACCOUNT.project_id;
+    const projectId   = (await loadServiceAccount()).project_id;
     const supabase    = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
     const now    = new Date();

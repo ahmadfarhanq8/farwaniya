@@ -1,12 +1,13 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { loadServiceAccount } from "../_shared/firebase-secret.ts";
 
 const SUPABASE_URL        = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const SERVICE_ACCOUNT     = JSON.parse(Deno.env.get("FIREBASE_SERVICE_ACCOUNT")!);
 
 // ─── FCM v1 HTTP API: توليد Access Token عبر Service Account JWT ────────────
 async function getAccessToken(): Promise<string> {
+  const SERVICE_ACCOUNT = await loadServiceAccount();
   const now = Math.floor(Date.now() / 1000);
 
   const header  = { alg: "RS256", typ: "JWT" };
@@ -132,7 +133,7 @@ serve(async (req) => {
     }
 
     const accessToken = await getAccessToken();
-    const projectId   = SERVICE_ACCOUNT.project_id;
+    const projectId   = (await loadServiceAccount()).project_id;
 
     // حساب عدد الإشعارات غير المقروءة (badge count)
     async function getBadgeCountForPerson(pid: string): Promise<number> {
