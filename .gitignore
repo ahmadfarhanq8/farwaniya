@@ -59,3 +59,4 @@ ios/Flutter/flutter_export_environment.sh
 # macOS
 .DS_Store
 **/.DS_Store
+backup-*.sql
