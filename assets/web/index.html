@@ -1,0 +1,1678 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>💼 أرشيف موظفين فحص فني الفروانية</title>
+    <link rel="stylesheet" href="style.css?v=10">
+</head>
+<body>
+
+<!-- ═══ Login Screen ═══ -->
+<div id="login-screen" class="login-screen" style="display:none;">
+    <div class="ls-bg-circle ls-circle1"></div>
+    <div class="ls-bg-circle ls-circle2"></div>
+    <div class="login-card">
+        <div class="ls-logo-wrap">
+            <div class="ls-logo-ring">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="6" y="14" width="36" height="26" rx="4" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+                    <rect x="14" y="6" width="20" height="10" rx="3" fill="rgba(255,255,255,0.25)" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+                    <rect x="18" y="28" width="12" height="12" rx="2" fill="rgba(255,255,255,0.5)"/>
+                    <circle cx="24" cy="22" r="3" fill="rgba(255,255,255,0.9)"/>
+                </svg>
+            </div>
+        </div>
+        <h1 class="login-title">فحص فني الفروانية</h1>
+        <p class="login-subtitle">نظام إدارة الموظفين والضباط</p>
+
+        <div class="login-field">
+            <label for="login-username">اسم المستخدم</label>
+            <input type="text" id="login-username" placeholder="أدخل اسم المستخدم" autocomplete="off">
+        </div>
+
+        <div class="login-field">
+            <label for="login-password">كلمة المرور</label>
+            <input type="password" id="login-password" placeholder="أدخل كلمة المرور" autocomplete="off">
+        </div>
+
+        <button id="login-button" class="login-btn" onclick="login()">
+            <span class="login-btn-icon">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            دخول
+        </button>
+
+        <label class="ls-remember-row" for="login-remember">
+            <input type="checkbox" id="login-remember">
+            <span class="ls-remember-box"></span>
+            <span class="ls-remember-label">تذكرني</span>
+        </label>
+        <p id="login-error" class="login-error" style="display:none;"></p>
+
+
+    </div>
+</div>
+
+<!-- ═══ Post-Login Splash Screen ═══ -->
+<div id="post-login-splash" class="post-login-splash" style="display:none;" aria-live="polite">
+    <div class="pls-bg-circle pls-c1"></div>
+    <div class="pls-bg-circle pls-c2"></div>
+    <div class="pls-content">
+        <div class="pls-logo-wrap">
+            <div class="pls-logo-ring">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="6" y="14" width="36" height="26" rx="4" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+                    <rect x="14" y="6" width="20" height="10" rx="3" fill="rgba(255,255,255,0.25)" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+                    <rect x="18" y="28" width="12" height="12" rx="2" fill="rgba(255,255,255,0.5)"/>
+                    <circle cx="24" cy="22" r="3" fill="rgba(255,255,255,0.9)"/>
+                </svg>
+            </div>
+        </div>
+        <h1 class="pls-title">فحص فني الفروانية</h1>
+        <p class="pls-subtitle">نظام إدارة الموظفين والضباط</p>
+        <p class="pls-welcome" id="pls-welcome-text">مرحباً بك</p>
+        <div class="pls-dots">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+</div>
+
+<div class="employee-app" id="employee-app" style="display:none;">
+    <div id="emp-page-dashboard" class="emp-page" style="display:none;">
+        <div class="emp-scroll-area">
+            <header class="emp-header-card">
+                <div class="emp-header-text">
+                    <h2 id="emp-name">---</h2>
+                    <p id="emp-job">---</p>
+                    <p id="emp-id">---</p>
+                </div>
+                <div class="emp-avatar" role="button" aria-label="حسابي" tabindex="0" onclick="employeeNavigate('account')" style="cursor:pointer;" onkeydown="if(event.key==='Enter')employeeNavigate('account')">
+                    <svg viewBox="0 0 24 24" role="img">
+                        <path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z"></path>
+                    </svg>
+                </div>
+            </header>
+
+            <section class="emp-card">
+                <div class="emp-card-head">
+                    <h3>رصيد الاستئذانات</h3>
+                    <span class="emp-balance-chip" id="perm-text">متبقي 4 من 4</span>
+                </div>
+                <div class="emp-balance-track" aria-hidden="true">
+                    <div class="emp-balance-fill" id="perm-bar"></div>
+                </div>
+            </section>
+
+            <section class="emp-card emp-leave-card">
+                <div class="emp-leave-icon" aria-hidden="true">✓</div>
+                <div class="emp-leave-content">
+                    <p id="leave-status">لا توجد إجازة نشطة</p>
+                    <p>أنت على رأس العمل حالياً</p>
+                </div>
+            </section>
+
+            <section class="emp-card">
+                <h3 class="emp-section-title">الطلبات</h3>
+                <div class="emp-action-grid">
+                    <button type="button" class="emp-action-btn" id="emp-btn-request-leave">
+                        <span class="emp-action-icon">🗓</span>
+                        <span>طلب إجازة</span>
+                    </button>
+                    <button type="button" class="emp-action-btn" id="emp-btn-request-permission">
+                        <span class="emp-action-icon">⏱</span>
+                        <span>طلب استئذان</span>
+                    </button>
+                    <button type="button" class="emp-action-btn" id="emp-btn-request-other">
+                        <span class="emp-action-icon">📄</span>
+                        <span>طلب آخر</span>
+                    </button>
+                </div>
+            </section>
+
+            <section class="emp-card" style="padding:0;overflow:hidden;">
+                <div class="emp-card-head" style="padding:12px 16px 8px;">
+                    <h3>آخر الطلبات</h3>
+                    <span style="font-size:11px;color:#8799ad;font-weight:600;">هذا الشهر</span>
+                </div>
+                <div id="my-requests"><div class="req-empty">لا توجد طلبات هذا الشهر</div></div>
+                <div class="req-card-footer"><button class="req-view-all-btn" onclick="employeeNavigate('requests')">~ عرض جميع الطلبات ~</button></div>
+            </section>
+        </div>
+
+    </div>
+
+    <div id="emp-page-account" class="emp-page" style="display:none;">
+        <div class="emp-scroll-area">
+            <div class="archive-page-header">
+                <div>
+                    <h1 class="archive-title">⚙️ حسابي</h1>
+                    <p class="archive-subtitle">إدارة إعدادات الحساب</p>
+                </div>
+            </div>
+            <section class="emp-card emp-account-card">
+                <div class="emp-account-actions">
+                    <button type="button" class="emp-primary-btn" onclick="openChangePasswordModal()">تغيير الرقم السري</button>
+                    <button type="button" class="emp-logout-btn" onclick="logout()">تسجيل خروج</button>
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e5ea; text-align: center; color: #8e8e93; font-size: 14px;">
+                    <strong>إشراف/</strong> العقيد عبدالله الأنصاري<br>
+                    <strong>تنفيذ/</strong> فاحص فني أحمد فرحان
+                </div>
+
+                <div id="emp-password-modal" class="emp-modal" style="display:none;">
+                    <div class="emp-modal-card">
+                        <h4>تغيير الرقم السري</h4>
+                        <div class="emp-form-group">
+                            <label for="emp-old-password">الرقم السري الحالي</label>
+                            <input type="password" id="emp-old-password" placeholder="أدخل الرقم السري الحالي">
+                        </div>
+                        <div class="emp-form-group">
+                            <label for="emp-new-password">الرقم السري الجديد</label>
+                            <input type="password" id="emp-new-password" placeholder="أدخل الرقم السري الجديد">
+                        </div>
+                        <div class="emp-form-group">
+                            <label for="emp-confirm-password">تأكيد الرقم السري الجديد</label>
+                            <input type="password" id="emp-confirm-password" placeholder="أعد كتابة الرقم السري الجديد">
+                        </div>
+                        <p id="emp-password-msg" class="emp-password-msg"></p>
+                        <div class="emp-modal-actions">
+                            <button type="button" class="emp-primary-btn" onclick="changeEmployeePassword()">حفظ</button>
+                            <button type="button" class="emp-secondary-btn" onclick="closeChangePasswordModal()">إلغاء</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div id="emp-page-requests" class="emp-page" style="display:none;">
+        <div class="emp-scroll-area" id="emp-scroll-requests">
+            <div id="emp-ptr-requests-indicator" style="display:none;justify-content:center;padding:10px;"><svg id="emp-ptr-requests-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></div>
+            <div class="archive-page-header">
+                <div>
+                    <h1 class="archive-title">طلباتي</h1>
+                    <p class="archive-subtitle">جميع الطلبات مرتبة من الأحدث للأقدم</p>
+                </div>
+            </div>
+            <div class="archive-card" style="padding:0;overflow:hidden;">
+                <div id="emp-requests-list"><div class="arch-list-empty">لا توجد طلبات</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="emp-page-archive" class="emp-page" style="display:none;">
+        <div class="emp-scroll-area">
+
+            <!-- رأس الصفحة -->
+            <div class="archive-page-header">
+                <div>
+                    <h1 class="archive-title">ملفاتي</h1>
+                    <p class="archive-subtitle">عرض ملفات الأرشيف الخاصة بك</p>
+                </div>
+            </div>
+
+            <!-- كروت تصنيف الأرشيف -->
+            <div class="archive-stats-row">
+                <div class="archive-stat-card" style="border-top:3px solid #3498db;">
+                    <div class="archive-stat-value" style="color:#3498db;" id="emp-arch-stat-total">0</div>
+                    <div class="archive-stat-label">إجمالي الملفات</div>
+                </div>
+                <div class="archive-stat-card" style="border-top:3px solid #2ecc71;">
+                    <div class="archive-stat-value" style="color:#2ecc71;" id="emp-arch-stat-leave">0</div>
+                    <div class="archive-stat-label">ملفات الإجازات</div>
+                </div>
+                <div class="archive-stat-card" style="border-top:3px solid #f39c12;">
+                    <div class="archive-stat-value" style="color:#f39c12;" id="emp-arch-stat-perm">0</div>
+                    <div class="archive-stat-label">ملفات الاستئذانات</div>
+                </div>
+                <div class="archive-stat-card" style="border-top:3px solid #e74c3c;">
+                    <div class="archive-stat-value" style="color:#e74c3c;" id="emp-arch-stat-doc">0</div>
+                    <div class="archive-stat-label">المستندات</div>
+                </div>
+            </div>
+
+            <!-- تبويبات -->
+            <div class="archive-tabs">
+                <button class="archive-tab active" id="emp-arch-tab-dashboard" onclick="switchEmpArchiveTab('dashboard')">لوحة التحكم</button>
+                <button class="archive-tab" id="emp-arch-tab-all" onclick="switchEmpArchiveTab('all')">كل الملفات</button>
+            </div>
+
+            <!-- تبويب لوحة التحكم -->
+            <div id="emp-arch-panel-dashboard">
+                <div class="archive-quick-grid" id="emp-arch-types-grid"></div>
+            </div>
+
+            <!-- تبويب كل الملفات -->
+            <div id="emp-arch-panel-all" style="display:none;">
+                <!-- فلاتر -->
+                <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;">
+                    <div class="filter-pills-row">
+                        <span class="filter-pills-label">النوع</span>
+                        <div class="filter-pills" data-target="emp-arch-type-filter" data-onchange="renderEmployeeArchiveList">
+                            <button class="filter-pill active" data-value="">الكل</button>
+                            <button class="filter-pill" data-value="leave">إجازات</button>
+                            <button class="filter-pill" data-value="permission">استئذانات</button>
+                            <button class="filter-pill" data-value="document">مستندات</button>
+                        </div>
+                    </div>
+                    <div class="filter-pills-row">
+                        <span class="filter-pills-label">بحث</span>
+                        <input type="text" id="emp-arch-search" placeholder="ابحث عن ملف..." oninput="renderEmployeeArchiveList()" style="padding:4px 8px;font-size:12px;border:1.5px solid #e2e8f0;border-radius:16px;height:30px;flex:1;background:#f8fafc;color:#334155;">
+                    </div>
+                </div>
+                <select id="emp-arch-type-filter" style="display:none;"><option value="">-- الكل --</option><option value="leave">إجازات</option><option value="permission">استئذانات</option><option value="document">مستندات</option></select>
+
+                <!-- قائمة الملفات -->
+                <div class="archive-card" style="padding:0;overflow:hidden;">
+                    <div id="emp-archive-list" class="arch-file-list">
+                        <div class="arch-list-empty">لا توجد ملفات أرشيف</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="emp-page-notifications" class="emp-page" style="display:none;">
+        <div class="emp-scroll-area" id="emp-scroll-notifications">
+            <div id="emp-ptr-indicator" style="display:none;justify-content:center;padding:10px;"><svg id="emp-ptr-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></div>
+            <div class="archive-page-header">
+                <div style="flex:1;">
+                    <h1 class="archive-title">🔔 الإشعارات</h1>
+                    <p class="archive-subtitle">إشعارات الطلبات والمستجدات</p>
+                </div>
+                <button type="button" onclick="markAllNotificationsRead()" style="background:linear-gradient(135deg,#1a365d,#2980b9);color:#fff;border:none;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;">✓ تحديد الكل</button>
+            </div>
+            <div class="archive-card" style="padding:0;overflow:hidden;">
+                <div id="notification-list" style="display:flex;flex-direction:column;">
+                    <div class="arch-list-empty">لا توجد إشعارات</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="emp-page-statistics" class="emp-page" style="display:none;padding-bottom:calc(72px + var(--safe-bottom));overflow-y:auto;"></div>
+
+    <nav class="emp-bottom-nav" aria-label="التنقل السفلي">
+            <button type="button" class="emp-tab active" data-emp-tab="dashboard" onclick="employeeNavigate('dashboard')">
+                <span class="emp-tab-icon">⌂</span>
+                <span>الرئيسية</span>
+            </button>
+            <button type="button" class="emp-tab" id="emp-tab-stats" data-emp-tab="statistics" onclick="employeeNavigate('statistics')" style="display:none;">
+                <span class="emp-tab-icon">▦</span>
+                <span>الإحصائيات</span>
+            </button>
+            <button type="button" class="emp-tab" data-emp-tab="notifications" onclick="employeeNavigate('notifications')">
+                <span class="emp-tab-icon" style="position:relative;">
+                    ◈
+                    <span id="emp-notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#dc2626;color:white;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:bold;line-height:16px;text-align:center;"></span>
+                </span>
+                <span>الإشعارات</span>
+            </button>
+            <button type="button" class="emp-tab" data-emp-tab="requests" onclick="employeeNavigate('requests')">
+                <span class="emp-tab-icon">▤</span>
+                <span>طلباتي</span>
+            </button>
+            <button type="button" class="emp-tab" data-emp-tab="archive" onclick="employeeNavigate('archive')">
+                <span class="emp-tab-icon">☰</span>
+                <span>ملفاتي</span>
+            </button>
+    </nav>
+</div>
+
+<!-- ═══════════════ صفحة الضابط ═══════════════ -->
+<div class="employee-app" id="officer-app" style="display:none;">
+
+    <div id="off-page-dashboard" class="emp-page" style="display:none;">
+        <div class="emp-scroll-area">
+            <header class="emp-header-card" style="background:linear-gradient(135deg,#1a365d 0%,#2980b9 100%);">
+                <div class="emp-header-text">
+                    <h2 id="off-dash-name">---</h2>
+                    <p id="off-dash-job">---</p>
+                    <p id="off-dash-id">---</p>
+                </div>
+                <div class="emp-avatar" role="button" aria-label="حسابي" tabindex="0" onclick="officerNavigate('account')" style="background:rgba(255,255,255,0.18);cursor:pointer;" onkeydown="if(event.key==='Enter')officerNavigate('account')">
+                    <svg viewBox="0 0 24 24" role="img">
+                        <path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z"></path>
+                    </svg>
+                </div>
+            </header>
+
+            <section class="emp-card">
+                <div class="emp-card-head">
+                    <h3>رصيد الاستئذانات</h3>
+                    <span class="emp-balance-chip" id="off-perm-text">متبقي 4 من 4</span>
+                </div>
+                <div class="emp-balance-track" aria-hidden="true">
+                    <div class="emp-balance-fill" id="off-perm-bar"></div>
+                </div>
+            </section>
+
+            <section class="emp-card emp-leave-card">
+                <div class="emp-leave-icon" aria-hidden="true">✓</div>
+                <div class="emp-leave-content">
+                    <p id="off-leave-status">لا توجد إجازة نشطة</p>
+                    <p>أنت على رأس العمل حالياً</p>
+                </div>
+            </section>
+
+            <section class="emp-card">
+                <h3 class="emp-section-title">الطلبات</h3>
+                <div class="emp-action-grid">
+                    <button type="button" class="emp-action-btn" id="off-btn-request-leave">
+                        <span class="emp-action-icon">🗓</span>
+                        <span>طلب إجازة</span>
+                    </button>
+                    <button type="button" class="emp-action-btn" id="off-btn-request-permission">
+                        <span class="emp-action-icon">⏱</span>
+                        <span>طلب استئذان</span>
+                    </button>
+                    <button type="button" class="emp-action-btn" id="off-btn-request-other">
+                        <span class="emp-action-icon">📄</span>
+                        <span>طلب آخر</span>
+                    </button>
+                </div>
+            </section>
+
+            <section class="emp-card" style="padding:0;overflow:hidden;">
+                <div class="emp-card-head" style="padding:12px 16px 8px;">
+                    <h3>آخر الطلبات</h3>
+                    <span style="font-size:11px;color:#8799ad;font-weight:600;">هذا الشهر</span>
+                </div>
+                <div id="off-my-requests"><div class="req-empty">لا توجد طلبات هذا الشهر</div></div>
+                <div class="req-card-footer"><button class="req-view-all-btn" onclick="officerNavigate('requests')">~ عرض جميع الطلبات ~</button></div>
+            </section>
+        </div>
+    </div>
+
+    <div id="off-page-account" class="emp-page" style="display:none;">
+        <div class="emp-scroll-area">
+            <div class="archive-page-header">
+                <div>
+                    <h1 class="archive-title">⚙️ حسابي</h1>
+                    <p class="archive-subtitle">إدارة إعدادات الحساب</p>
+                </div>
+            </div>
+            <section class="emp-card emp-account-card">
+                <div class="emp-account-actions">
+                    <button type="button" class="emp-primary-btn" onclick="openOfficerChangePasswordModal()">تغيير الرقم السري</button>
+                    <button type="button" class="emp-logout-btn" onclick="logout()">تسجيل خروج</button>
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e5ea; text-align: center; color: #8e8e93; font-size: 14px;">
+                    <strong>إشراف/</strong> العقيد عبدالله الأنصاري<br>
+                    <strong>تنفيذ/</strong> فاحص فني أحمد فرحان
+                </div>
+
+                <div id="off-password-modal" class="emp-modal" style="display:none;">
+                    <div class="emp-modal-card">
+                        <h4>تغيير الرقم السري</h4>
+                        <div class="emp-form-group">
+                            <label for="off-old-password">الرقم السري الحالي</label>
+                            <input type="password" id="off-old-password" placeholder="أدخل الرقم السري الحالي">
+                        </div>
+                        <div class="emp-form-group">
+                            <label for="off-new-password">الرقم السري الجديد</label>
+                            <input type="password" id="off-new-password" placeholder="أدخل الرقم السري الجديد">
+                        </div>
+                        <div class="emp-form-group">
+                            <label for="off-confirm-password">تأكيد الرقم السري الجديد</label>
+                            <input type="password" id="off-confirm-password" placeholder="أعد كتابة الرقم السري الجديد">
+                        </div>
+                        <p id="off-password-msg" class="emp-password-msg"></p>
+                        <div class="emp-modal-actions">
+                            <button type="button" class="emp-primary-btn" onclick="changeOfficerPassword()">حفظ</button>
+                            <button type="button" class="emp-secondary-btn" onclick="closeOfficerChangePasswordModal()">إلغاء</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div id="off-page-requests" class="emp-page" style="display:none;">
+        <div class="emp-scroll-area" id="off-scroll-requests">
+            <div id="off-ptr-requests-indicator" style="display:none;justify-content:center;padding:10px;"><svg id="off-ptr-requests-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></div>
+            <div class="archive-page-header">
+                <div>
+                    <h1 class="archive-title">طلباتي</h1>
+                    <p class="archive-subtitle">جميع الطلبات مرتبة من الأحدث للأقدم</p>
+                </div>
+            </div>
+            <div class="archive-card" style="padding:0;overflow:hidden;">
+                <div id="off-requests-list"><div class="arch-list-empty">لا توجد طلبات</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="off-page-archive" class="emp-page" style="display:none;">
+        <div class="emp-scroll-area">
+
+            <!-- رأس الصفحة -->
+            <div class="archive-page-header">
+                <div>
+                    <h1 class="archive-title">ملفاتي</h1>
+                    <p class="archive-subtitle">عرض ملفات الأرشيف الخاصة بك</p>
+                </div>
+            </div>
+
+            <!-- كروت تصنيف الأرشيف -->
+            <div class="archive-stats-row">
+                <div class="archive-stat-card" style="border-top:3px solid #3498db;">
+                    <div class="archive-stat-value" style="color:#3498db;" id="off-arch-my-stat-total">0</div>
+                    <div class="archive-stat-label">إجمالي الملفات</div>
+                </div>
+                <div class="archive-stat-card" style="border-top:3px solid #2ecc71;">
+                    <div class="archive-stat-value" style="color:#2ecc71;" id="off-arch-my-stat-leave">0</div>
+                    <div class="archive-stat-label">ملفات الإجازات</div>
+                </div>
+                <div class="archive-stat-card" style="border-top:3px solid #f39c12;">
+                    <div class="archive-stat-value" style="color:#f39c12;" id="off-arch-my-stat-perm">0</div>
+                    <div class="archive-stat-label">ملفات الاستئذانات</div>
+                </div>
+                <div class="archive-stat-card" style="border-top:3px solid #e74c3c;">
+                    <div class="archive-stat-value" style="color:#e74c3c;" id="off-arch-my-stat-doc">0</div>
+                    <div class="archive-stat-label">المستندات</div>
+                </div>
+            </div>
+
+            <!-- تبويبات -->
+            <div class="archive-tabs">
+                <button class="archive-tab active" id="off-arch-tab-dashboard" onclick="switchOffMyArchiveTab('dashboard')">لوحة التحكم</button>
+                <button class="archive-tab" id="off-arch-tab-all" onclick="switchOffMyArchiveTab('all')">كل الملفات</button>
+            </div>
+
+            <!-- تبويب لوحة التحكم -->
+            <div id="off-arch-panel-dashboard">
+                <div class="archive-quick-grid" id="off-arch-my-types-grid"></div>
+            </div>
+
+            <!-- تبويب كل الملفات -->
+            <div id="off-arch-panel-all" style="display:none;">
+                <!-- فلاتر -->
+                <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;">
+                    <div class="filter-pills-row">
+                        <span class="filter-pills-label">النوع</span>
+                        <div class="filter-pills" data-target="off-arch-my-type-filter" data-onchange="renderOfficerArchiveList">
+                            <button class="filter-pill active" data-value="">الكل</button>
+                            <button class="filter-pill" data-value="leave">إجازات</button>
+                            <button class="filter-pill" data-value="permission">استئذانات</button>
+                            <button class="filter-pill" data-value="document">مستندات</button>
+                        </div>
+                    </div>
+                    <div class="filter-pills-row">
+                        <span class="filter-pills-label">بحث</span>
+                        <input type="text" id="off-arch-my-search" placeholder="ابحث عن ملف..." oninput="renderOfficerArchiveList()" style="padding:4px 8px;font-size:12px;border:1.5px solid #e2e8f0;border-radius:16px;height:30px;flex:1;background:#f8fafc;color:#334155;">
+                    </div>
+                </div>
+                <select id="off-arch-my-type-filter" style="display:none;"><option value="">-- الكل --</option><option value="leave">إجازات</option><option value="permission">استئذانات</option><option value="document">مستندات</option></select>
+
+                <!-- قائمة الملفات -->
+                <div class="archive-card" style="padding:0;overflow:hidden;">
+                    <div id="off-archive-list" class="arch-file-list">
+                        <div class="arch-list-empty">لا توجد ملفات أرشيف</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="off-page-notifications" class="emp-page" style="display:none;">
+        <div class="emp-scroll-area" id="off-scroll-notifications">
+            <div id="off-ptr-indicator" style="display:none;justify-content:center;padding:10px;"><svg id="off-ptr-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></div>
+            <div class="archive-page-header">
+                <div style="flex:1;">
+                    <h1 class="archive-title">🔔 الإشعارات</h1>
+                    <p class="archive-subtitle">إشعارات الطلبات والمستجدات</p>
+                </div>
+                <button type="button" onclick="markAllOfficerNotificationsRead()" style="background:linear-gradient(135deg,#1a365d,#2980b9);color:#fff;border:none;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;">✓ تحديد الكل</button>
+            </div>
+            <div class="archive-card" style="padding:0;overflow:hidden;">
+                <div id="off-notification-list" style="display:flex;flex-direction:column;">
+                    <div class="arch-list-empty">لا توجد إشعارات</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="emp-bottom-nav" aria-label="التنقل السفلي للضباط">
+        <button type="button" class="emp-tab active" data-off-tab="dashboard" onclick="officerNavigate('dashboard')">
+            <span class="emp-tab-icon">⌂</span>
+            <span>الرئيسية</span>
+        </button>
+        <button type="button" class="emp-tab" data-off-tab="requests" onclick="officerNavigate('requests')">
+            <span class="emp-tab-icon">▤</span>
+            <span>طلباتي</span>
+        </button>
+        <button type="button" class="emp-tab" data-off-tab="notifications" onclick="officerNavigate('notifications')">
+            <span class="emp-tab-icon" style="position:relative;">
+                ◈
+                <span id="off-notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#dc2626;color:white;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:bold;line-height:16px;text-align:center;"></span>
+            </span>
+            <span>الإشعارات</span>
+        </button>
+        <button type="button" class="emp-tab" data-off-tab="archive" onclick="officerNavigate('archive')">
+            <span class="emp-tab-icon">☰</span>
+            <span>ملفاتي</span>
+        </button>
+    </nav>
+</div>
+
+<div class="main-content" id="app-main-content" style="display:none;">
+    <!-- الرئيسية -->
+    <div class="page active" id="page-home">
+        <div class="dashboard-header">
+            <div class="dashboard-title-card">
+                <button type="button" id="btn-home-bell" class="dashboard-bell-btn" aria-label="الإشعارات">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                </button>
+                <div class="dtc-text">
+                    <p class="dtc-line1">نظام أرشفة الموظفين</p>
+                    <p class="dtc-line2">إدارة الفحص الفني</p>
+                </div>
+            </div>
+        </div>
+        <!-- Profile Popup - removed, replaced by page-profile -->
+
+        <div class="stats-grid">
+            <div class="stat-card purple" id="stat-card-officers" tabindex="0" role="button" aria-label="الضباط"><div class="label">الضباط المتواجدين</div><div class="number" id="stat-officers">0</div></div>
+            <div class="stat-card green" id="stat-card-officers-on-leave" tabindex="0" role="button" aria-label="الضباط المجازين"><div class="label">الضباط المجازين</div><div class="number" id="stat-officers-on-leave">0</div></div>
+            <div class="stat-card olive" id="stat-card-employees" tabindex="0" role="button" aria-label="الموظفين"><div class="label">الموظفين المتواجدين</div><div class="number" id="stat-employees">0</div></div>
+            <div class="stat-card green" id="stat-card-employees-on-leave" tabindex="0" role="button" aria-label="الموظفين المجازين"><div class="label">الموظفين المجازين</div><div class="number" id="stat-employees-on-leave">0</div></div>
+        </div>
+        <div class="table-container">
+            <h3 style="margin-bottom:20px;color:#2c3e50;">إجراءات سريعة</h3>
+            <div class="quick-actions-container">
+                <button class="quick-action-btn" id="btn-home-archive">الأرشيف</button>
+                <button class="quick-action-btn" id="btn-home-add-permission">إضافة استئذان</button>
+                <button class="quick-action-btn" id="btn-home-add-leave">إضافة إجازة</button>
+            </div>
+        </div>
+        <div class="table-container">
+            <h3 style="color:#2980b9;margin:0 0 5px 0;text-align:center;font-size:14px;">إحصائيات الفحص</h3>
+            <div class="radio-inputs-wrap">
+                <div class="radio-inputs">
+                    <label class="radio">
+                        <input checked name="period" type="radio" value="daily" />
+                        <span class="name">يومي</span>
+                    </label>
+                    <label class="radio">
+                        <input name="period" type="radio" value="weekly" />
+                        <span class="name">أسبوعي</span>
+                    </label>
+                    <label class="radio">
+                        <input name="period" type="radio" value="monthly" />
+                        <span class="name">شهري</span>
+                    </label>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:center;margin-bottom:10px;">
+                <input type="date" id="chart-date-input" style="padding:4px 8px;font-size:13px;border:1.5px solid #b8d4ea;border-radius:8px;height:32px;color:#333;">
+            </div>
+            <div id="chart-summary-cards" style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;"></div>
+        </div>
+    </div>
+
+    <!-- الضباط -->
+    <div class="page" id="page-officers">
+        <div class="page-header">
+            <div><h1>قائمة الضباط</h1><p>عرض وإدارة بيانات الضباط</p></div>
+        </div>
+        <div class="table-container">
+            <input type="text" class="search-box" style="width:100%;margin-bottom:10px;padding:10px 14px;font-size:15px;border:1.5px solid #e0e0e0;border-radius:12px;background:#f8f8f8;" id="officers-search-input" placeholder="🔍 بحث...">
+            <div style="display:flex;gap:8px;margin-bottom:12px;">
+                <button class="card-top-btn" id="btn-add-officer" style="flex:1;background:linear-gradient(135deg,#1a365d,#2980b9);">➕ إضافة</button>
+            </div>
+            <div class="person-cards-container" id="officers-cards"></div>
+        </div>
+    </div>
+
+
+
+    <!-- الموظفين -->
+    <div class="page" id="page-employees">
+        <div class="page-header">
+            <div><h1 style="color:#fff;">قائمة الموظفين</h1><p>عرض وإدارة بيانات الموظفين</p></div>
+        </div>
+        <div class="table-container">
+            <input type="text" class="search-box" style="width:100%;margin-bottom:10px;padding:10px 14px;font-size:15px;border:1.5px solid #e0e0e0;border-radius:12px;background:#f8f8f8;" id="employees-search-input" placeholder="🔍 بحث...">
+            <div class="filter-pills" style="margin-bottom:12px;">
+                <button class="filter-pill active" id="employees-filter-all" onclick="setEmployeesPeriodFilter('all')">الكل</button>
+                <button class="filter-pill pill-morning" id="employees-filter-morning" onclick="setEmployeesPeriodFilter('morning')">فترة الصبح</button>
+                <button class="filter-pill pill-evening" id="employees-filter-evening" onclick="setEmployeesPeriodFilter('evening')">فترة العصر</button>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+                <button class="card-top-btn" id="btn-broadcast-message" onclick="openBroadcastMessageModal()" style="flex:1;background:linear-gradient(135deg,#1d4ed8,#60a5fa);">📢 رسالة جماعية</button>
+                <button class="card-top-btn" id="btn-add-employee" style="flex:1;background:linear-gradient(135deg,#3d5a1e,#6B8E23);">➕ إضافة</button>
+                <button class="card-top-btn" id="btn-print-employees" style="flex:1;background:linear-gradient(135deg,#1d4ed8,#60a5fa);">🖨️ طباعة</button>
+            </div>
+            <div class="person-cards-container" id="employees-cards"></div>
+        </div>
+    </div>
+
+    <!-- نظام أرشفة الموظفين -->
+    <div class="page" id="page-files">
+        <div class="archive-page-header">
+            <div>
+                <h1 class="archive-title" style="color:#556b2f;">نظام أرشفة الموظفين</h1>
+                <p class="archive-subtitle" id="archive-subtitle">إدارة ملفات الموظفين - إجازات، استئذانات، مستندات</p>
+            </div>
+            <div class="archive-header-actions">
+                <button class="archive-action-btn" id="btn-archive-upload" style="background:#6b8e23;">رفع ملف</button>
+            </div>
+        </div>
+
+        <!-- بطاقات إحصائية -->
+        <div class="archive-stats-row" id="arch-stats-row">
+            <div class="archive-stat-card" style="border-top:3px solid #6b8e23;">
+                <div class="archive-stat-value" style="color:#6b8e23;" id="arch-stat-employees">0</div>
+                <div class="archive-stat-label">الموظفين</div>
+            </div>
+            <div class="archive-stat-card" style="border-top:3px solid #3498db;">
+                <div class="archive-stat-value" style="color:#3498db;" id="arch-stat-files">0</div>
+                <div class="archive-stat-label">إجمالي الملفات</div>
+            </div>
+            <div class="archive-stat-card" style="border-top:3px solid #2ecc71;">
+                <div class="archive-stat-value" style="color:#2ecc71;" id="arch-stat-leaves">0</div>
+                <div class="archive-stat-label">ملفات الإجازات</div>
+            </div>
+            <div class="archive-stat-card" style="border-top:3px solid #f39c12;">
+                <div class="archive-stat-value" style="color:#f39c12;" id="arch-stat-perms">0</div>
+                <div class="archive-stat-label">ملفات الاستئذانات</div>
+            </div>
+        </div>
+
+        <!-- تبويبات -->
+        <div class="archive-tabs">
+            <button class="archive-tab active" id="arch-tab-dashboard">لوحة التحكم</button>
+            <button class="archive-tab" id="arch-tab-employees">ملفات الموظفين</button>
+            <button class="archive-tab" id="arch-tab-all">كل الملفات</button>
+        </div>
+
+        <!-- تبويب لوحة التحكم -->
+        <div id="arch-panel-dashboard">
+            <!-- Quick Actions -->
+            <div class="archive-quick-grid" id="arch-all-types-grid">
+            </div>
+        </div>
+
+        <!-- تبويب ملفات الموظفين -->
+        <div id="arch-panel-employees" style="display:none;">
+            <div class="archive-card" style="margin-bottom:12px;padding:16px 20px;">
+                <input type="text" id="arch-emp-search" placeholder="بحث عن موظف..." class="archive-search-input">
+            </div>
+            <div id="arch-employees-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;"></div>
+        </div>
+
+        <!-- تبويب كل الملفات -->
+        <div id="arch-panel-all" style="display:none;">
+            <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;">
+                <div class="filter-pills-row">
+                    <span class="filter-pills-label">الموظف</span>
+                    <select id="arch-emp-filter" style="padding:4px 8px;font-size:12px;border:1.5px solid #e2e8f0;border-radius:16px;height:30px;flex:1;background:#f8fafc;color:#334155;max-width:200px;"><option value="">-- الكل --</option></select>
+                </div>
+                <div class="filter-pills-row">
+                    <span class="filter-pills-label">النوع</span>
+                    <div class="filter-pills" data-target="arch-type-filter" data-onchange="renderArchiveAll">
+                        <button class="filter-pill active" data-value="">الكل</button>
+                        <button class="filter-pill" data-value="leave">إجازات</button>
+                        <button class="filter-pill" data-value="permission">استئذانات</button>
+                        <button class="filter-pill" data-value="document">مستندات</button>
+                    </div>
+                </div>
+                <div class="filter-pills-row">
+                    <span class="filter-pills-label">بحث</span>
+                    <input type="text" id="arch-file-search" placeholder="ابحث عن ملف..." style="padding:4px 8px;font-size:12px;border:1.5px solid #e2e8f0;border-radius:16px;height:30px;flex:1;background:#f8fafc;color:#334155;">
+                </div>
+            </div>
+            <select id="arch-type-filter" style="display:none;"><option value="">-- الكل --</option><option value="leave">إجازات</option><option value="permission">استئذانات</option><option value="document">مستندات</option></select>
+            <div class="archive-card" style="padding:0;overflow:hidden;">
+                <div id="arch-all-table" class="arch-file-list">
+                    <div class="arch-list-empty">جاري التحميل...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة الموظف -->
+        <div id="arch-panel-employee-detail" style="display:none;">
+            <div style="display:flex;gap:8px;margin-bottom:14px;">
+                <button class="archive-action-btn" id="btn-arch-back" style="background:#64748b;font-size:14px;">رجوع</button>
+                <button class="archive-action-btn" id="btn-arch-upload-for-employee" style="background:#6b8e23;font-size:14px;">رفع ملف لهذا الموظف</button>
+            </div>
+            <div class="archive-card" style="margin-bottom:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+                    <div>
+                        <h2 id="arch-emp-name" style="color:#2c3e50;margin:0;font-size:20px;">---</h2>
+                        <p id="arch-emp-info" style="color:#94a3b8;font-size:15px;margin-top:4px;">---</p>
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <div class="archive-mini-stat" style="background:#eff6ff;"><div style="color:#3498db;font-size:20px;font-weight:700;" id="arch-emp-file-count">0</div><div>ملفات</div></div>
+                        <div class="archive-mini-stat" style="background:#f0fdf4;"><div style="color:#2ecc71;font-size:20px;font-weight:700;" id="arch-emp-leave-count">0</div><div>إجازات</div></div>
+                        <div class="archive-mini-stat" style="background:#fffbeb;"><div style="color:#f39c12;font-size:20px;font-weight:700;" id="arch-emp-perm-count">0</div><div>استئذانات</div></div>
+                        <div class="archive-mini-stat" style="background:#fef2f2;"><div style="color:#e74c3c;font-size:20px;font-weight:700;" id="arch-emp-doc-count">0</div><div>مستندات</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="archive-card" style="padding:0;overflow:hidden;">
+                <div style="padding:10px 14px;border-bottom:1px solid #f1f5f9;">
+                    <div class="filter-pills-row" style="background:transparent;padding:0;box-shadow:none;">
+                        <span class="filter-pills-label">النوع</span>
+                        <div class="filter-pills" data-target="arch-emp-type-filter" data-onchange="renderEmployeeFiles">
+                            <button class="filter-pill active" data-value="">الكل</button>
+                            <button class="filter-pill" data-value="leave">إجازات</button>
+                            <button class="filter-pill" data-value="permission">استئذانات</button>
+                            <button class="filter-pill" data-value="document">مستندات</button>
+                        </div>
+                    </div>
+                </div>
+                <select id="arch-emp-type-filter" style="display:none;"><option value="">الكل</option><option value="leave">إجازات</option><option value="permission">استئذانات</option><option value="document">مستندات</option></select>
+                <div id="arch-emp-files-table" class="arch-file-list">
+                    <div class="arch-list-empty">لا توجد ملفات</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نظام أرشفة الضباط -->
+    <div class="page" id="page-officer-files">
+        <div class="archive-page-header">
+            <div>
+                <h1 class="archive-title" style="color:#1a365d;">نظام أرشفة الضباط</h1>
+                <p class="archive-subtitle" id="off-archive-subtitle">إدارة ملفات الضباط - إجازات، استئذانات، مستندات</p>
+            </div>
+            <div class="archive-header-actions">
+                <button class="archive-action-btn" id="btn-off-archive-upload" style="background:#1e40af;">رفع ملف</button>
+            </div>
+        </div>
+
+        <!-- بطاقات إحصائية -->
+        <div class="archive-stats-row" id="off-arch-stats-row">
+            <div class="archive-stat-card" style="border-top:3px solid #1e40af;">
+                <div class="archive-stat-value" style="color:#1e40af;" id="off-arch-stat-officers">0</div>
+                <div class="archive-stat-label">الضباط</div>
+            </div>
+            <div class="archive-stat-card" style="border-top:3px solid #3498db;">
+                <div class="archive-stat-value" style="color:#3498db;" id="off-arch-stat-files">0</div>
+                <div class="archive-stat-label">إجمالي الملفات</div>
+            </div>
+            <div class="archive-stat-card" style="border-top:3px solid #2ecc71;">
+                <div class="archive-stat-value" style="color:#2ecc71;" id="off-arch-stat-leaves">0</div>
+                <div class="archive-stat-label">ملفات الإجازات</div>
+            </div>
+            <div class="archive-stat-card" style="border-top:3px solid #f39c12;">
+                <div class="archive-stat-value" style="color:#f39c12;" id="off-arch-stat-perms">0</div>
+                <div class="archive-stat-label">ملفات الاستئذانات</div>
+            </div>
+        </div>
+
+        <!-- تبويبات -->
+        <div class="archive-tabs">
+            <button class="archive-tab active" id="off-arch-tab-dashboard">لوحة التحكم</button>
+            <button class="archive-tab" id="off-arch-tab-officers">ملفات الضباط</button>
+            <button class="archive-tab" id="off-arch-tab-all">كل الملفات</button>
+        </div>
+
+        <!-- تبويب لوحة التحكم -->
+        <div id="off-arch-panel-dashboard">
+            <div class="archive-quick-grid" id="off-arch-all-types-grid">
+            </div>
+        </div>
+
+        <!-- تبويب ملفات الضباط -->
+        <div id="off-arch-panel-officers" style="display:none;">
+            <div class="archive-card" style="margin-bottom:12px;padding:16px 20px;">
+                <input type="text" id="off-arch-search" placeholder="بحث عن ضابط..." class="archive-search-input">
+            </div>
+            <div id="off-arch-officers-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;"></div>
+        </div>
+
+        <!-- تبويب كل الملفات -->
+        <div id="off-arch-panel-all" style="display:none;">
+            <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;">
+                <div class="filter-pills-row">
+                    <span class="filter-pills-label">الضابط</span>
+                    <select id="off-arch-off-filter" style="padding:4px 8px;font-size:12px;border:1.5px solid #e2e8f0;border-radius:16px;height:30px;flex:1;background:#f8fafc;color:#334155;max-width:200px;"><option value="">-- الكل --</option></select>
+                </div>
+                <div class="filter-pills-row">
+                    <span class="filter-pills-label">النوع</span>
+                    <div class="filter-pills" data-target="off-arch-type-filter" data-onchange="renderOffArchiveAll">
+                        <button class="filter-pill active" data-value="">الكل</button>
+                        <button class="filter-pill" data-value="leave">إجازات</button>
+                        <button class="filter-pill" data-value="permission">استئذانات</button>
+                        <button class="filter-pill" data-value="document">مستندات</button>
+                    </div>
+                </div>
+                <div class="filter-pills-row">
+                    <span class="filter-pills-label">بحث</span>
+                    <input type="text" id="off-arch-file-search" placeholder="ابحث عن ملف..." style="padding:4px 8px;font-size:12px;border:1.5px solid #e2e8f0;border-radius:16px;height:30px;flex:1;background:#f8fafc;color:#334155;">
+                </div>
+            </div>
+            <select id="off-arch-type-filter" style="display:none;"><option value="">-- الكل --</option><option value="leave">إجازات</option><option value="permission">استئذانات</option><option value="document">مستندات</option></select>
+            <div class="archive-card" style="padding:0;overflow:hidden;">
+                <div id="off-arch-all-table" class="arch-file-list">
+                    <div class="arch-list-empty">جاري التحميل...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة الضابط -->
+        <div id="off-arch-panel-officer-detail" style="display:none;">
+            <div style="display:flex;gap:8px;margin-bottom:14px;">
+                <button class="archive-action-btn" id="btn-off-arch-back" style="background:#64748b;font-size:14px;">رجوع</button>
+                <button class="archive-action-btn" id="btn-off-arch-upload-for-officer" style="background:#1e40af;font-size:14px;">رفع ملف لهذا الضابط</button>
+            </div>
+            <div class="archive-card" style="margin-bottom:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+                    <div>
+                        <h2 id="off-arch-name" style="color:#1a365d;margin:0;font-size:20px;">---</h2>
+                        <p id="off-arch-info" style="color:#94a3b8;font-size:15px;margin-top:4px;">---</p>
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <div class="archive-mini-stat" style="background:#eff6ff;"><div style="color:#3498db;font-size:20px;font-weight:700;" id="off-arch-file-count">0</div><div>ملفات</div></div>
+                        <div class="archive-mini-stat" style="background:#f0fdf4;"><div style="color:#2ecc71;font-size:20px;font-weight:700;" id="off-arch-leave-count">0</div><div>إجازات</div></div>
+                        <div class="archive-mini-stat" style="background:#fffbeb;"><div style="color:#f39c12;font-size:20px;font-weight:700;" id="off-arch-perm-count">0</div><div>استئذانات</div></div>
+                        <div class="archive-mini-stat" style="background:#fef2f2;"><div style="color:#e74c3c;font-size:20px;font-weight:700;" id="off-arch-doc-count">0</div><div>مستندات</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="archive-card" style="padding:0;overflow:hidden;">
+                <div style="padding:10px 14px;border-bottom:1px solid #f1f5f9;">
+                    <div class="filter-pills-row" style="background:transparent;padding:0;box-shadow:none;">
+                        <span class="filter-pills-label">النوع</span>
+                        <div class="filter-pills" data-target="off-arch-type-detail-filter" data-onchange="renderOfficerDetailFiles">
+                            <button class="filter-pill active" data-value="">الكل</button>
+                            <button class="filter-pill" data-value="leave">إجازات</button>
+                            <button class="filter-pill" data-value="permission">استئذانات</button>
+                            <button class="filter-pill" data-value="document">مستندات</button>
+                        </div>
+                    </div>
+                </div>
+                <select id="off-arch-type-detail-filter" style="display:none;"><option value="">الكل</option><option value="leave">إجازات</option><option value="permission">استئذانات</option><option value="document">مستندات</option></select>
+                <div id="off-arch-detail-table" class="arch-file-list">
+                    <div class="arch-list-empty">لا توجد ملفات</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الإجازات -->
+    <div class="page" id="page-leaves">
+        <div class="page-header">
+            <div><h1>🏖️ سجل الإجازات</h1><p>عرض وإدارة إجازات الضباط والموظفين</p></div>
+        </div>
+        <!-- Hidden selects for JS compatibility -->
+        <select id="leave-filter-type" style="display:none;"><option value="all">الكل</option><option value="employee">موظف</option><option value="officer">ضابط</option></select>
+        <select id="leave-filter-category" style="display:none;"><option value="all">الكل</option><option value="دورية">دورية</option><option value="إدارية">إدارية</option><option value="دراسية">دراسية</option><option value="طارئة">طارئة</option><option value="حج">حج</option><option value="مرضية">مرضية</option></select>
+        <select id="leave-filter-status" style="display:none;"><option value="all">الكل</option><option value="جارية">جارية</option><option value="منتهية">منتهية</option><option value="قادمة">قادمة</option></select>
+
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;">
+            <!-- نوع الشخص -->
+            <div class="filter-pills-row">
+                <span class="filter-pills-label">الشخص</span>
+                <div class="filter-pills" data-target="leave-filter-type">
+                    <button class="filter-pill active" data-value="all">الكل</button>
+                    <button class="filter-pill pill-officer" data-value="officer">ضباط</button>
+                    <button class="filter-pill pill-employee" data-value="employee">موظفين</button>
+                </div>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;">
+            <div id="leave-card-total" style="background:white;border-radius:6px;padding:6px;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,0.08);border-top:4px solid #3498db;"><div style="font-size:18px;font-weight:bold;color:#3498db;" id="leave-stat-total">0</div><div style="color:#666;font-size:11px;font-weight:700;">الإجمالي</div></div>
+            <div id="leave-card-active" style="background:white;border-radius:6px;padding:6px;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,0.08);border-top:4px solid #90EE90;"><div style="font-size:18px;font-weight:bold;color:#4CAF50;" id="leave-stat-active">0</div><div style="color:#666;font-size:11px;font-weight:700;">جارية</div></div>
+            <div id="leave-card-upcoming" style="background:white;border-radius:6px;padding:6px;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,0.08);border-top:4px solid #f39c12;"><div style="font-size:18px;font-weight:bold;color:#f39c12;" id="leave-stat-upcoming">0</div><div style="color:#666;font-size:11px;font-weight:700;">قادمة</div></div>
+            <div id="leave-card-ended" style="background:white;border-radius:6px;padding:6px;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,0.08);border-top:4px solid #e74c3c;"><div style="font-size:18px;font-weight:bold;color:#e74c3c;" id="leave-stat-ended">0</div><div style="color:#666;font-size:11px;font-weight:700;">منتهية</div></div>
+        </div>
+        <div class="table-container">
+            <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:8px;gap:6px;direction:ltr;flex-wrap:nowrap;">
+                <button class="filter-pill" id="leave-print-btn" style="padding:10px 20px;">طباعة</button>
+                <button class="filter-pill" id="leave-add-btn" style="padding:10px 20px;">إضافة إجازة</button>
+            </div>
+            <table style="display:none;">
+                <thead id="leaves-thead" style="display:none;"><tr><th>#</th><th>الاسم</th><th>الحالة</th></tr></thead>
+                <tbody id="leaves-table-legacy"></tbody>
+            </table>
+            <div id="leaves-cards" style="display:flex;flex-direction:column;gap:8px;"></div>
+        </div>
+    </div>
+
+    <!-- التقارير -->
+    <div class="page" id="page-reports">
+        <div class="page-header">
+            <div><h1>التقارير</h1><p>تقارير الضباط والموظفين والإجازات</p></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="table-container"><h3 style="margin-bottom:10px;color:#2c3e50;font-size:13px;font-weight:700;">الضباط حسب الرتبة</h3><div id="rank-report"></div></div>
+            <div class="table-container"><h3 style="margin-bottom:10px;color:#2c3e50;font-size:13px;font-weight:700;">الموظفين حسب القسم</h3><div id="dept-report"></div></div>
+        </div>
+        <div class="table-container">
+            <h3 style="margin-bottom:10px;color:#2c3e50;font-size:13px;font-weight:700;">آخر الإجازات</h3>
+            <table>
+                <thead style="background:linear-gradient(135deg,#1e3a5f,#2563eb);"><tr><th>#</th><th>الاسم</th><th>نوع الإجازة</th><th>البداية</th><th>النهاية</th><th>المباشرة</th><th>الحالة</th></tr></thead>
+                <tbody id="leaves-report-table"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- حسابي -->
+    <div class="page" id="page-profile">
+        <div class="page-header">
+            <div><h1>حسابي</h1><p>إدارة الحساب والإعدادات</p></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;padding:20px 0 10px;">
+            <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#1D5FA7,#0B3C5D);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(11,60,93,0.3);">
+                <svg viewBox="0 0 24 24" style="width:34px;height:34px;fill:white;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+            </div>
+            <div style="font-size:18px;font-weight:700;color:#1a3a6b;margin-top:8px;">المشرف</div>
+            <div style="font-size:13px;color:#888;margin-top:2px;" id="profile-current-date"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+            <button class="print-btn-neo" id="btn-profile-settings" style="padding:12px 20px;font-size:15px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;">
+                <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                الإعدادات
+            </button>
+        </div>
+    </div>
+
+    <!-- النسخ الاحتياطية -->
+    <div class="page" id="page-backups">
+        <div class="page-header">
+            <div><h1>💾 النسخ الاحتياطية</h1><p>إنشاء واستعادة النسخ الاحتياطية</p></div>
+            <div style="display:flex;gap:4px;">
+                <button class="btn btn-success" id="btn-create-backup">➕ إنشاء نسخة</button>
+                <button class="btn btn-primary" id="btn-import-backup">📥 استيراد نسخة</button>
+            </div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead><tr><th>#</th><th>الاسم</th><th>التاريخ</th><th>الحجم</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                <tbody id="backups-table"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- الإحصائيات -->
+    <div id="page-statistics-anchor" style="display:none;"></div>
+    <div class="page" id="page-statistics">
+        <div class="page-header">
+            <div><h1>📈 لوحة الإحصائيات</h1><p>إحصائيات المعاملات اليومية والأسبوعية والشهرية</p></div>
+        </div>
+
+        <!-- الإدخال السريع اليومي -->
+        <div class="quick-input-section">
+            <div class="quick-input-date-row">
+                <label class="stat-form-label">التاريخ</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="date" id="quick-date" class="stat-form-input" style="flex:1;">
+                </div>
+            </div>
+
+            <div class="qi-grid">
+                <div class="qi-card">
+                    <label class="qi-label">خصوصي</label>
+                    <input type="text" inputmode="numeric" id="quick-private" value="0" class="qi-input">
+                </div>
+                <div class="qi-card">
+                    <label class="qi-label">نقل خاص</label>
+                    <input type="text" inputmode="numeric" id="quick-special" value="0" class="qi-input">
+                </div>
+                <div class="qi-card">
+                    <label class="qi-label">نقل عام</label>
+                    <input type="text" inputmode="numeric" id="quick-general" value="0" class="qi-input">
+                </div>
+                <div class="qi-card">
+                    <label class="qi-label">دراجات</label>
+                    <input type="text" inputmode="numeric" id="quick-motorcycles" value="0" class="qi-input">
+                </div>
+                <div class="qi-card">
+                    <label class="qi-label">تغيير لون</label>
+                    <input type="text" inputmode="numeric" id="quick-color" value="0" class="qi-input">
+                </div>
+                <div class="qi-card">
+                    <label class="qi-label">يسمح بالجر</label>
+                    <input type="text" inputmode="numeric" id="quick-towing" value="0" class="qi-input">
+                </div>
+                <div class="qi-card qi-card-alt">
+                    <label class="qi-label">اللجان الفنية</label>
+                    <input type="text" inputmode="numeric" id="quick-technical" value="0" class="qi-input">
+                </div>
+                <div class="qi-card qi-card-alt">
+                    <label class="qi-label">اجتازت ثاني مرة</label>
+                    <input type="text" inputmode="numeric" id="quick-second" value="0" class="qi-input">
+                </div>
+                <div class="qi-card qi-card-alt">
+                    <label class="qi-label">اجتازت ثالث مرة</label>
+                    <input type="text" inputmode="numeric" id="quick-third" value="0" class="qi-input">
+                </div>
+            </div>
+
+            <div class="qi-total">
+                <span>الإجمالي</span>
+                <span id="quick-total" class="qi-total-value">0</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:12px;">
+                <button id="btn-save-quick-stats" onclick="saveQuickStatistics()" style="flex:1;padding:12px;background:linear-gradient(135deg,#1a365d,#2980b9);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity 0.2s;">💾 حفظ الإحصائية</button>
+                <span id="quick-stats-status2" style="font-size:12px;color:var(--text3);min-width:80px;text-align:center;"></span>
+            </div>
+        </div>
+
+        <!-- تبويبات -->
+        <div class="stats-segmented-control">
+            <button class="stats-seg-btn active" id="btn-daily-form">📋 يومي</button>
+            <button class="stats-seg-btn" id="btn-weekly-form">📊 أسبوعي</button>
+            <button class="stats-seg-btn" id="btn-monthly-form">📈 شهري</button>
+        </div>
+
+        <!-- 🔹 النموذج اليومي الرسمي -->
+        <div id="tab-daily-form">
+            <div class="stat-form-header">
+                <div style="flex:1;">
+                    <label class="stat-form-label">📅 اختر التاريخ</label>
+                    <input type="date" id="daily-form-date" class="stat-form-input">
+                </div>
+                <button class="print-btn-neo" id="btn-print-daily" style="align-self:flex-end;">🖨️ طباعة</button>
+            </div>
+            <div id="daily-form-cards" class="stat-cards-container">
+                <div class="stat-empty-msg">اختر تاريخاً لعرض البيانات</div>
+            </div>
+        </div>
+
+        <!-- 🔹 النموذج الأسبوعي الرسمي -->
+        <div id="tab-weekly-form" style="display:none;">
+            <div class="stat-form-header" style="flex-wrap:wrap;">
+                <div style="flex:1;min-width:120px;">
+                    <label class="stat-form-label">📅 من</label>
+                    <input type="date" id="weekly-form-start" class="stat-form-input">
+                </div>
+                <div style="flex:1;min-width:120px;">
+                    <label class="stat-form-label">📅 إلى</label>
+                    <input type="date" id="weekly-form-end" class="stat-form-input">
+                </div>
+                <div style="display:flex;gap:6px;align-self:flex-end;">
+                    <button class="print-btn-neo" id="btn-set-current-week" style="font-size:12px;padding:8px 14px;">📆 الأسبوع</button>
+                    <button class="print-btn-neo" id="btn-print-weekly" style="font-size:12px;padding:8px 14px;">🖨️ طباعة</button>
+                </div>
+            </div>
+            <div id="weekly-form-cards" class="stat-cards-container">
+                <div class="stat-empty-msg">اختر نطاق تواريخ لعرض البيانات الأسبوعية</div>
+            </div>
+        </div>
+
+        <!-- 🔹 الإحصائية الشهرية الرسمية -->
+        <div id="tab-monthly-form" style="display:none;">
+            <div class="stat-form-header" style="flex-wrap:wrap;">
+                <div style="flex:1;min-width:140px;">
+                    <label class="stat-form-label">📅 الشهر والسنة</label>
+                    <input type="month" id="monthly-form-month" class="stat-form-input">
+                </div>
+                <div style="display:flex;gap:6px;align-self:flex-end;">
+                    <button class="print-btn-neo" id="btn-set-current-month" style="font-size:12px;padding:8px 14px;">📆 الشهر</button>
+                    <button class="print-btn-neo" id="btn-print-monthly" style="font-size:12px;padding:8px 14px;">🖨️ طباعة</button>
+                </div>
+            </div>
+            <div id="monthly-form-cards" class="stat-cards-container">
+                <div class="stat-empty-msg">اختر شهراً لعرض الإحصائيات الشهرية</div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- سجل الاستئذانات -->
+    <div class="page" id="page-permissions">
+        <div class="page-header">
+            <div><h1>🕐 سجل الاستئذانات</h1><p>عرض وإدارة استئذانات الموظفين والضباط</p></div>
+        </div>
+
+        <!-- فلاتر -->
+        <select id="perm-filter-person-type" style="display:none;"><option value="all">الكل</option><option value="officer">ضباط</option><option value="employee">موظفين</option></select>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;">
+            <div class="filter-pills-row">
+                <span class="filter-pills-label">الشهر</span>
+                <input type="month" id="perm-filter-month" style="padding:4px 8px;font-size:12px;border:1.5px solid #e2e8f0;border-radius:16px;height:30px;flex:1;max-width:180px;background:#f8fafc;color:#334155;">
+            </div>
+            <div class="filter-pills-row">
+                <span class="filter-pills-label">النوع</span>
+                <div class="filter-pills" data-target="perm-filter-person-type" data-onchange="renderPermissions">
+                    <button class="filter-pill active" data-value="all">الكل</button>
+                    <button class="filter-pill" data-value="officer">ضباط</button>
+                    <button class="filter-pill" data-value="employee">موظفين</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- إحصائيات -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px;">
+            <div id="perm-card-total" style="background:white;border-radius:6px;padding:6px;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,0.08);border-top:4px solid #3498db;">
+                <div style="font-size:18px;font-weight:bold;color:#3498db;" id="perm-stat-total">0</div>
+                <div style="color:#666;font-size:10px;font-weight:700;">إجمالي الاستئذانات</div>
+            </div>
+            <div id="perm-card-start" style="background:white;border-radius:6px;padding:6px;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,0.08);border-top:4px solid #2ecc71;">
+                <div style="font-size:18px;font-weight:bold;color:#2ecc71;" id="perm-stat-start">0</div>
+                <div style="color:#666;font-size:10px;font-weight:700;">بداية دوام</div>
+            </div>
+            <div id="perm-card-end" style="background:white;border-radius:6px;padding:6px;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,0.08);border-top:4px solid #f39c12;">
+                <div style="font-size:18px;font-weight:bold;color:#f39c12;" id="perm-stat-end">0</div>
+                <div style="color:#666;font-size:10px;font-weight:700;">نهاية دوام</div>
+            </div>
+            <div id="perm-card-employees" style="background:white;border-radius:6px;padding:6px;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,0.08);border-top:4px solid #6B8E23;">
+                <div style="font-size:18px;font-weight:bold;color:#6B8E23;" id="perm-stat-employees">0</div>
+                <div style="color:#666;font-size:10px;font-weight:700;">عدد الموظفين</div>
+            </div>
+        </div>
+
+        <!-- تقرير شهري -->
+        <div class="table-container" id="perm-report-view">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:4px;">
+                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                    <button class="print-btn-neo" id="btn-add-permission-main">إضافة استئذان</button>
+                    <button class="print-btn-neo" id="perm-btn-print-off">طباعة كشف الضباط</button>
+                    <button class="print-btn-neo" id="perm-btn-print-emp">طباعة كشف الموظفين</button>
+                </div>
+                <h3 style="color:#1a3a6b;margin:0;font-size:12px;text-align:center;">التقرير الشهري</h3>
+            </div>
+            <table style="display:none;">
+                <tbody id="permissions-report-table-legacy"></tbody>
+            </table>
+            <div id="permissions-report-cards" style="display:flex;flex-direction:column;gap:8px;"></div>
+        </div>
+    </div>
+
+    <!-- صفحة الإشعارات -->
+    <div class="page" id="page-notifications">
+        <div id="ptr-indicator" style="display:none;justify-content:center;padding:10px;"><svg id="ptr-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></div>
+        <div class="page-header">
+            <div><h1>الإشعارات</h1><p>طلبات الإجازات والاستئذانات الجديدة</p></div>
+        </div>
+        <div class="archive-card" style="padding:0;overflow:hidden;">
+            <div id="notifications-list" style="display:flex;flex-direction:column;"></div>
+        </div>
+    </div>
+
+    <div class="page" id="page-settings">
+        <div class="page-header">
+            <div><h1>⚙️ الإعدادات</h1><p>إعدادات النظام والتخصيص</p></div>
+        </div>
+        <div class="ios-settings">
+
+            <!-- قسم الحساب -->
+            <div class="ios-section">
+                <p class="ios-section-title">الحساب</p>
+                <div class="ios-section-card">
+                    <div class="ios-setting-item" data-action="settings-edit-name">
+                        <div class="ios-setting-icon" style="background:#007aff;">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                        </div>
+                        <div class="ios-setting-content">
+                            <div class="ios-setting-label">اسم المستخدم</div>
+                            <div class="ios-setting-sublabel" id="settings-username-display">المشرف</div>
+                        </div>
+                        <div class="ios-setting-arrow"></div>
+                    </div>
+                    <div class="ios-setting-item" onclick="openAdminChangePasswordModal()">
+                        <div class="ios-setting-icon" style="background:#ff9500;">
+                            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                        </div>
+                        <div class="ios-setting-content">
+                            <div class="ios-setting-label">تغيير كلمة السر</div>
+                            <div class="ios-setting-sublabel">تعديل كلمة المرور الحالية</div>
+                        </div>
+                        <div class="ios-setting-arrow"></div>
+                    </div>
+
+                </div>
+            </div>
+
+
+
+            <!-- قسم البيانات -->
+            <div class="ios-section">
+                <p class="ios-section-title">البيانات</p>
+                <div class="ios-section-card">
+                    <div class="ios-setting-item" data-action="settings-show-reports">
+                        <div class="ios-setting-icon" style="background:#ff3b30;">
+                            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                        </div>
+                        <div class="ios-setting-content">
+                            <div class="ios-setting-label">التقارير</div>
+                            <div class="ios-setting-sublabel">عرض التقارير والإحصائيات</div>
+                        </div>
+                        <div class="ios-setting-arrow"></div>
+                    </div>
+
+
+
+                </div>
+            </div>
+
+            <!-- قسم إدارة الحسابات -->
+            <div class="ios-section" id="settings-accounts-section">
+                <p class="ios-section-title">إدارة الحسابات</p>
+                <div class="ios-section-card">
+                    <div class="ios-setting-item" onclick="openAdminAccountsModal()">
+                        <div class="ios-setting-icon" style="background:#5856d6;">
+                            <svg viewBox="0 0 24 24" fill="white"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                        </div>
+                        <div class="ios-setting-content">
+                            <div class="ios-setting-label">الحسابات</div>
+                            <div class="ios-setting-sublabel">إضافة وتعديل وحذف الحسابات</div>
+                        </div>
+                        <div class="ios-setting-arrow"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- حذف البيانات -->
+            <div class="ios-section">
+                <button class="ios-danger-btn" id="btn-settings-logout" onclick="logout()">تسجيل الخروج</button>
+            </div>
+
+            <div class="ios-version-footer">
+                <strong>إشراف/</strong> العقيد عبدالله الأنصاري<br>
+                <strong>تنفيذ/</strong> فاحص فني أحمد فرحان<br>
+                <span id="settings-build-date"></span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- modal إدارة الحسابات -->
+<div class="modal-overlay" id="admin-accounts-modal" style="display:none;" onclick="if(event.target===this) closeAdminAccountsModal()">
+    <div class="modal detail-modal" style="width:100%;max-width:460px;">
+        <div class="detail-header" style="background:linear-gradient(135deg,#5856d6 0%,#7c3aed 100%);">
+            <button class="detail-close-btn" onclick="closeAdminAccountsModal()">✕</button>
+            <div class="detail-header-content">
+                <div class="detail-avatar" style="font-size:30px;">👥</div>
+                <div class="detail-header-info">
+                    <h2 class="detail-header-name">إدارة الحسابات</h2>
+                    <p class="detail-header-sub">إضافة وتعديل وحذف الحسابات</p>
+                </div>
+            </div>
+        </div>
+        <div style="padding:16px;">
+            <button onclick="openAddAdminAccountForm()" style="width:100%;background:linear-gradient(135deg,#5856d6,#7c3aed);color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:14px;">
+                + إضافة حساب جديد
+            </button>
+            <div id="admin-accounts-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- modal إضافة/تعديل حساب أدمن -->
+<div class="modal-overlay" id="admin-account-form-modal" style="display:none;" onclick="if(event.target===this) closeAddAdminAccountForm()">
+    <div class="emp-modal-card" style="max-width:400px;width:90%;">
+        <h4 id="admin-acc-form-title">إضافة حساب جديد</h4>
+        <input type="hidden" id="admin-acc-edit-id" value="">
+        <div class="emp-form-group">
+            <label>اسم المستخدم *</label>
+            <input type="text" id="admin-acc-username" placeholder="مثال: admin2" autocomplete="off">
+        </div>
+        <div class="emp-form-group">
+            <label id="admin-acc-pass-label">كلمة المرور *</label>
+            <input type="password" id="admin-acc-password" placeholder="أدخل كلمة المرور" autocomplete="new-password">
+        </div>
+        <div class="emp-form-group">
+            <label>الصلاحية *</label>
+            <select id="admin-acc-role" style="width:100%;padding:10px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;">
+                <option value="admin">أدمن — لوحة التحكم الكاملة</option>
+            </select>
+        </div>
+        <p id="admin-acc-error" style="color:#dc2626;font-size:13px;display:none;margin:4px 0 8px;"></p>
+        <div class="emp-modal-actions">
+            <button onclick="saveAdminAccount()" style="background:#5856d6;color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:15px;font-weight:700;cursor:pointer;">حفظ</button>
+            <button onclick="closeAddAdminAccountForm()" style="background:#8e8e93;color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:15px;font-weight:700;cursor:pointer;">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<!-- modal تغيير كلمة سر الأدمن -->
+<div class="modal-overlay" id="admin-password-modal" style="display:none;" onclick="if(event.target===this) closeAdminChangePasswordModal()">
+    <div class="emp-modal-card" style="max-width:380px;width:90%;">
+        <h4>تغيير كلمة السر</h4>
+        <div class="emp-form-group">
+            <label>كلمة السر الحالية</label>
+            <input type="password" id="admin-old-password" placeholder="أدخل كلمة السر الحالية">
+        </div>
+        <div class="emp-form-group">
+            <label>كلمة السر الجديدة</label>
+            <input type="password" id="admin-new-password" placeholder="أدخل كلمة السر الجديدة">
+        </div>
+        <div class="emp-form-group">
+            <label>تأكيد كلمة السر الجديدة</label>
+            <input type="password" id="admin-confirm-password" placeholder="أعد كتابة كلمة السر الجديدة">
+        </div>
+        <p id="admin-password-msg" class="emp-password-msg"></p>
+        <div class="emp-modal-actions">
+            <button type="button" class="emp-primary-btn" onclick="changeAdminPassword()">حفظ</button>
+            <button type="button" class="emp-secondary-btn" onclick="closeAdminChangePasswordModal()">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<!-- النوافذ المنبثقة -->
+
+
+<div class="modal-overlay" id="add-daily-stats-modal">
+    <div class="modal" style="max-width:500px;">
+        <div class="modal-header"><h2>📈 إضافة بيانات يومية</h2><button class="modal-close" id="btn-close-daily-stats-x">✕</button></div>
+        <div style="display:flex;flex-direction:column;gap:15px;">
+            <div class="form-group" style="margin-bottom:0;">
+                <label>📅 التاريخ *</label>
+                <input type="date" id="stats-date" value="">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label>خصوصي</label>
+                <input type="number" id="stats-private" min="0" placeholder="0" style="padding:10px;border:2px solid #e0e0e0;border-radius:8px;">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label>نقل خاص</label>
+                <input type="number" id="stats-special-transfer" min="0" placeholder="0" style="padding:10px;border:2px solid #e0e0e0;border-radius:8px;">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label>نقل عام</label>
+                <input type="number" id="stats-general-transfer" min="0" placeholder="0" style="padding:10px;border:2px solid #e0e0e0;border-radius:8px;">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label>دراجات نارية</label>
+                <input type="number" id="stats-motorcycles" min="0" placeholder="0" style="padding:10px;border:2px solid #e0e0e0;border-radius:8px;">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label>تغيير لون</label>
+                <input type="number" id="stats-color-change" min="0" placeholder="0" style="padding:10px;border:2px solid #e0e0e0;border-radius:8px;">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label>يسمح بالجر</label>
+                <input type="number" id="stats-towing" min="0" placeholder="0" style="padding:10px;border:2px solid #e0e0e0;border-radius:8px;">
+            </div>
+
+            <!-- المعلومات الإضافية -->
+            <div style="border-top:2px solid #e0e0e0;padding-top:15px;margin-top:10px;">
+                <div style="font-weight:bold;color:#2c3e50;margin-bottom:10px;">معلومات إضافية:</div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label>مركبات اللجان الفنية</label>
+                    <input type="number" id="stats-technical-committees" min="0" placeholder="0" style="padding:10px;border:2px solid #e0e0e0;border-radius:8px;">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label>مركبات اجتازت الفحص ثاني مرة</label>
+                    <input type="number" id="stats-second-pass" min="0" placeholder="0" style="padding:10px;border:2px solid #e0e0e0;border-radius:8px;">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label>مركبات اجتازت الفحص ثالث مرة</label>
+                    <input type="number" id="stats-third-pass" min="0" placeholder="0" style="padding:10px;border:2px solid #e0e0e0;border-radius:8px;">
+                </div>
+            </div>
+
+            <!-- معاينة -->
+            <div style="display:flex;gap:10px;">
+                <div style="flex:1;background:#f8f9ff;border:2px solid #3498db;border-radius:10px;padding:15px;text-align:center;">
+                    <div style="color:#999;font-size:14px;margin-bottom:5px;">الإجمالي</div>
+                    <div style="font-size:34px;font-weight:bold;color:#3498db;" id="stats-preview-total">0</div>
+                </div>
+                <div style="flex:1;background:#eaf2f8;border:2px solid #2980b9;border-radius:10px;padding:15px;text-align:center;">
+                    <div style="color:#999;font-size:14px;margin-bottom:5px;">مج اللجان</div>
+                    <div style="font-size:34px;font-weight:bold;color:#2980b9;" id="stats-preview-committees">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-danger" id="btn-close-daily-stats">❌ إلغاء</button>
+            <button class="btn btn-success" id="btn-save-daily-stats">💾 حفظ</button>
+        </div>
+    </div>
+</div>
+
+<!-- لوحة تحكم الموظفين -->
+<div class="page" id="page-emp-dashboard">
+    <div class="page-header" style="background:linear-gradient(135deg,#3634a3 0%,#5856d6 100%);">
+        <div>
+            <h1 style="color:#fff;">لوحة تحكم الموظفين</h1>
+            <p id="emp-dash-date" style="color:rgba(255,255,255,0.7);font-size:12px;margin-top:2px;"></p>
+        </div>
+        <button onclick="showPage('employees')" style="background:rgba(255,255,255,0.15);border:none;color:white;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">قائمة الموظفين</button>
+    </div>
+
+    <!-- بطاقات الإحصاء -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;" id="emp-dash-kpi-grid">
+        <div class="stat-card purple" style="border-radius:16px;">
+            <div class="label">إجمالي الموظفين</div>
+            <div class="number" id="edash-total">0</div>
+        </div>
+        <div class="stat-card olive" style="border-radius:16px;">
+            <div class="label">المتواجدون</div>
+            <div class="number" id="edash-present">0</div>
+        </div>
+        <div class="stat-card" style="background:linear-gradient(135deg,#ff3b30,#ff6b6b);border-radius:16px;">
+            <div class="label" style="color:white;">في إجازة</div>
+            <div class="number" style="color:white;" id="edash-on-leave">0</div>
+        </div>
+        <div class="stat-card" style="background:linear-gradient(135deg,#ff9500,#ffcc00);border-radius:16px;">
+            <div class="label" style="color:white;">استئذانات الشهر</div>
+            <div class="number" style="color:white;" id="edash-perms-month">0</div>
+        </div>
+    </div>
+
+    <!-- توزيع الفترات -->
+    <div class="table-container" style="margin-bottom:12px;">
+        <h3 style="font-size:14px;color:#3634a3;margin-bottom:10px;font-weight:700;">توزيع الفترات</h3>
+        <div style="display:flex;gap:10px;margin-bottom:8px;">
+            <div style="flex:1;text-align:center;">
+                <div style="font-size:11px;color:#64748b;margin-bottom:4px;">فترة الصبح</div>
+                <div style="font-size:22px;font-weight:800;color:#007aff;" id="edash-morning-count">0</div>
+            </div>
+            <div style="flex:1;text-align:center;">
+                <div style="font-size:11px;color:#64748b;margin-bottom:4px;">غير محدد</div>
+                <div style="font-size:22px;font-weight:800;color:#8e8e93;" id="edash-unset-count">0</div>
+            </div>
+            <div style="flex:1;text-align:center;">
+                <div style="font-size:11px;color:#64748b;margin-bottom:4px;">فترة العصر</div>
+                <div style="font-size:22px;font-weight:800;color:#ff9500;" id="edash-evening-count">0</div>
+            </div>
+        </div>
+        <div style="height:10px;background:#f2f2f7;border-radius:8px;overflow:hidden;display:flex;">
+            <div id="edash-bar-morning" style="background:#007aff;height:100%;transition:width 0.4s;"></div>
+            <div id="edash-bar-unset" style="background:#c7c7cc;height:100%;transition:width 0.4s;"></div>
+            <div id="edash-bar-evening" style="background:#ff9500;height:100%;transition:width 0.4s;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;">
+            <span style="font-size:10px;color:#007aff;font-weight:600;" id="edash-bar-morning-pct">0%</span>
+            <span style="font-size:10px;color:#8e8e93;font-weight:600;" id="edash-bar-unset-pct">0%</span>
+            <span style="font-size:10px;color:#ff9500;font-weight:600;" id="edash-bar-evening-pct">0%</span>
+        </div>
+    </div>
+
+    <!-- المجازون حالياً -->
+    <div class="table-container" style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <h3 style="font-size:14px;color:#ff3b30;font-weight:700;margin:0;">المجازون حالياً</h3>
+            <span class="badge badge-danger" id="edash-on-leave-badge" style="font-size:12px;">0</span>
+        </div>
+        <div id="edash-on-leave-list">
+            <div style="text-align:center;color:#94a3b8;padding:20px;font-size:14px;">لا يوجد موظفون في إجازة</div>
+        </div>
+    </div>
+
+    <!-- استئذانات هذا الشهر -->
+    <div class="table-container" style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <h3 style="font-size:14px;color:#ff9500;font-weight:700;margin:0;">استئذانات هذا الشهر</h3>
+            <span id="edash-month-label" style="font-size:11px;color:#94a3b8;"></span>
+        </div>
+        <div id="edash-perms-list">
+            <div style="text-align:center;color:#94a3b8;padding:20px;font-size:14px;">لا توجد استئذانات هذا الشهر</div>
+        </div>
+    </div>
+
+    <!-- إجازات قادمة -->
+    <div class="table-container" style="margin-bottom:12px;">
+        <h3 style="font-size:14px;color:#34c759;font-weight:700;margin-bottom:10px;">إجازات قادمة</h3>
+        <div id="edash-upcoming-leaves">
+            <div style="text-align:center;color:#94a3b8;padding:20px;font-size:14px;">لا توجد إجازات قادمة</div>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Navigation (Mobile) -->
+<nav class="bottom-nav" id="bottomNav" style="display:none;">
+    <button class="bottom-nav-item active" data-page="home">
+        <span class="bottom-nav-icon"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></span>
+        <span class="bottom-nav-label">الرئيسية</span>
+    </button>
+    <button class="bottom-nav-item" data-page="leaves">
+        <span class="bottom-nav-icon"><svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg></span>
+        <span class="bottom-nav-label">الإجازات</span>
+    </button>
+    <button class="bottom-nav-item" data-page="permissions">
+        <span class="bottom-nav-icon"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></span>
+        <span class="bottom-nav-label">الاستئذانات</span>
+    </button>
+    <button class="bottom-nav-item" data-page="statistics">
+        <span class="bottom-nav-icon"><svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg></span>
+        <span class="bottom-nav-label">الإحصائيات</span>
+    </button>
+    <button class="bottom-nav-item" data-page="settings">
+        <span class="bottom-nav-icon"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></span>
+        <span class="bottom-nav-label">الإعدادات</span>
+    </button>
+</nav>
+
+<!-- Broadcast Message Modal -->
+<div class="modal-overlay" id="broadcast-message-modal" style="display:none;">
+    <div class="modal" style="max-width:500px;">
+        <div class="modal-header">
+            <h2>📢 إرسال رسالة جماعية</h2>
+            <button class="modal-close" onclick="closeBroadcastMessageModal()">✕</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;padding:20px;">
+            <div class="form-group" style="margin-bottom:0;">
+                <label style="font-weight:600;margin-bottom:8px;display:block;color:#1c1c1e;">🎯 الفئة المستهدفة</label>
+                <select id="broadcast-target" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:15px;background:#fff;">
+                    <option value="all">الكل</option>
+                    <option value="morning">فترة الصبح</option>
+                    <option value="evening">فترة العصر</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label style="font-weight:600;margin-bottom:8px;display:block;color:#1c1c1e;">💬 نص الرسالة</label>
+                <textarea id="broadcast-message" rows="5" placeholder="اكتب رسالتك هنا..." style="width:100%;padding:12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:15px;font-family:inherit;resize:vertical;"></textarea>
+            </div>
+            <p id="broadcast-error" style="color:#dc2626;font-size:13px;margin:0;display:none;"></p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeBroadcastMessageModal()" style="flex:1;">إلغاء</button>
+            <button class="btn btn-primary" onclick="sendBroadcastMessage()" style="flex:2;background:linear-gradient(135deg,#16a34a,#4ade80);">📤 إرسال</button>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Detail Modal -->
+<!-- Other Request Modal -->
+<div class="modal-overlay" id="other-request-modal" style="display:none;align-items:center;justify-content:center;padding:12px;">
+    <div class="modal detail-modal" style="width:min(92vw,390px);max-width:390px;max-height:78vh;border-radius:22px;">
+        <div class="detail-header" style="background:linear-gradient(135deg,#1D5FA7 0%,#2f82dd 100%);padding:14px 14px 10px;border-radius:16px 16px 12px 12px;">
+            <button class="detail-close-btn" onclick="closeOtherRequestModal()">✕</button>
+            <div class="detail-header-content">
+                <div class="detail-avatar" style="font-size:24px;width:36px;height:36px;border-radius:10px;">📄</div>
+                <div class="detail-header-info">
+                    <h2 class="detail-header-name" style="font-size:16px;">طلب آخر</h2>
+                    <p class="detail-header-sub" style="font-size:12px;">قدّم طلبك ليتم مراجعته</p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-body" style="padding:12px 14px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:10px;">
+            <div>
+                <label style="font-size:12px;font-weight:700;color:#334155;display:block;margin-bottom:5px;">نوع الطلب</label>
+                <input id="other-type" type="text" placeholder="اكتب نوع الطلب"
+                    style="width:100%;padding:10px 11px;border:1px solid #d8e1ec;border-radius:10px;font-size:14px;background:#fff;font-family:inherit;" />
+            </div>
+            <div>
+                <label style="font-size:12px;font-weight:700;color:#334155;display:block;margin-bottom:5px;">الوصف</label>
+                <textarea id="other-desc" rows="4" placeholder="اكتب الوصف"
+                    style="width:100%;padding:10px 11px;border:1px solid #d8e1ec;border-radius:10px;font-size:14px;font-family:inherit;resize:vertical;min-height:88px;"></textarea>
+            </div>
+            <p id="other-request-error" style="color:#dc2626;font-size:13px;margin:0;display:none;background:#fff1f2;border:1px solid #fecdd3;padding:8px 10px;border-radius:10px;"></p>
+        </div>
+        <div class="detail-footer" style="display:flex;gap:8px;padding:10px 14px;">
+            <button class="btn" onclick="submitOtherRequest()" style="flex:1.6;background:linear-gradient(135deg,#16a34a,#4ade80);color:#fff;padding:8px 10px;font-size:13px;">📤 تقديم الطلب</button>
+            <button class="btn" onclick="closeOtherRequestModal()" style="flex:1;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;padding:8px 10px;font-size:13px;">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="notification-detail-modal" style="display:none;" onclick="if(event.target===this)closeNotificationDetail()">
+    <div class="modal" style="max-width:440px;padding:0;overflow:hidden;border-radius:20px;">
+        <!-- هيدر النافذة -->
+        <div id="notif-detail-header" style="padding:20px 18px 16px;display:flex;align-items:center;gap:14px;">
+            <div id="notif-detail-icon-wrap" style="width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">
+                <span id="notif-detail-icon">📬</span>
+            </div>
+            <div style="flex:1;min-width:0;">
+                <h3 id="notif-detail-subtitle" style="margin:0;font-size:16px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></h3>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:5px;">
+                    <span id="notif-detail-status-badge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,0.22);color:#fff;"></span>
+                    <span id="notif-detail-date" style="font-size:11px;color:rgba(255,255,255,0.72);"></span>
+                </div>
+            </div>
+            <button onclick="closeNotificationDetail()" style="background:rgba(255,255,255,0.18);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/></svg></button>
+        </div>
+        <!-- جسم النافذة -->
+        <div style="padding:16px 18px 20px;background:#fff;">
+            <div style="background:#f8fafc;border-radius:14px;padding:14px 16px;border:1px solid #e8f0fb;">
+                <p id="notif-detail-message" style="font-size:14px;color:#334155;line-height:1.8;margin:0;white-space:pre-wrap;"></p>
+            </div>
+            <button onclick="closeNotificationDetail()" style="margin-top:14px;width:100%;background:linear-gradient(135deg,#1D5FA7,#2C7BCC);color:#fff;border:none;border-radius:14px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;">حسناً</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="admin-notification-detail-modal" style="display:none;" onclick="if(event.target===this) closeAdminNotificationDetail()">
+    <div class="modal" style="max-width:440px;padding:0;overflow:hidden;border-radius:20px;">
+        <!-- هيدر -->
+        <div id="admin-notif-detail-header" style="padding:20px 18px 16px;display:flex;align-items:center;gap:14px;">
+            <div id="admin-notif-detail-icon-wrap" style="width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span id="admin-notif-detail-icon"></span>
+            </div>
+            <div style="flex:1;min-width:0;">
+                <h3 id="admin-notif-detail-subtitle" style="margin:0;font-size:15px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></h3>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:5px;">
+                    <span id="admin-notif-detail-status-badge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,0.22);color:#fff;"></span>
+                    <span id="admin-notif-detail-date" style="font-size:11px;color:rgba(255,255,255,0.72);"></span>
+                </div>
+            </div>
+            <button onclick="closeAdminNotificationDetail()" style="background:rgba(255,255,255,0.18);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/></svg></button>
+        </div>
+        <!-- جسم -->
+        <div style="padding:16px 18px 20px;background:#fff;">
+            <div style="background:#f8fafc;border-radius:14px;padding:14px 16px;border:1px solid #e8f0fb;">
+                <p id="admin-notif-detail-message" style="font-size:14px;color:#334155;line-height:1.8;margin:0;white-space:pre-wrap;"></p>
+            </div>
+            <div id="admin-notif-detail-actions" style="margin-top:14px;display:flex;gap:10px;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Context Menu for Copy/Paste -->
+<div id="contextMenu" class="context-menu">
+    <div class="context-menu-item" data-action="cut">✂️ قص</div>
+    <div class="context-menu-item" data-action="copy">📋 نسخ</div>
+    <div class="context-menu-item" data-action="paste">📄 لصق</div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" data-action="select-all">⚡ تحديد الكل</div>
+</div>
+
+
+    <div id="notification-toast-container"></div>
+
+    <!-- Supabase — محلي لضمان التشغيل بدون إنترنت -->
+    <script src="supabase.min.js"></script>
+    <!-- استبدل database.js بالنسخة السحابية -->
+    <script src="database-supabase.js?v=1"></script>
+    <script src="assets/chart.min.js"></script>
+    <script src="app.js?v=17"></script>
+</body>
+</html>

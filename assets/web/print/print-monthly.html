@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>النموذج الشهري - قسم الفحص الفني</title>
+    <style>
+        * { margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Arial', serif;
+            direction: rtl;
+            padding: 20px;
+            background: white;
+        }
+        
+        .container {
+            background: white;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px 40px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .logo {
+            height: 100px;
+        }
+        
+        .header-title {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .header-title h1 {
+            color: #000;
+            font-size: 22px;
+            margin-bottom: 3px;
+            font-weight: bold;
+        }
+        
+        .header-title p {
+            color: #000;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 1px 0;
+        }
+        
+        .formal-greeting {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 15px 0;
+            font-family: 'Arial';
+            font-size: 16px;
+            color: #000;
+            font-weight: bold;
+            border-bottom: 1px solid #ccc;
+        }
+        
+        .period-info {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px 0;
+        }
+        
+        .period-info h2 {
+            color: #000;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .period-info p {
+            color: #000;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            font-size: 12px;
+        }
+        
+        th {
+            background: #d3d3d3;
+            color: #000;
+            padding: 10px 8px;
+            font-weight: bold;
+            text-align: center;
+            border: 1px solid #000;
+            font-size: 11px;
+        }
+        
+        td {
+            padding: 10px 8px;
+            text-align: center;
+            border: 1px solid #000;
+            font-weight: bold;
+            color: #000;
+            font-size: 11px;
+        }
+        
+        .type-name {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background: #f0f0f0;
+        }
+        
+        .total-row td {
+            background: #d3d3d3;
+            color: #000;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .grand-total {
+            background: #bbb !important;
+            color: #000 !important;
+            font-size: 13px !important;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <style>@media print{.no-print{display:none!important;}}</style>
+    <button class="no-print" onclick="window.flutter_inappwebview ? window.flutter_inappwebview.callHandler('goBackToApp') : history.back()" style="position:fixed;top:12px;right:12px;z-index:9999;background:#1a73e8;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:15px;font-family:Arial,sans-serif;cursor:pointer;direction:rtl;box-shadow:0 2px 6px rgba(0,0,0,.25);">← رجوع</button>
+    <button class="no-print" onclick="doPrint()" style="position:fixed;top:12px;left:12px;z-index:9999;background:#2e7d32;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:15px;font-family:Arial,sans-serif;cursor:pointer;direction:rtl;box-shadow:0 2px 6px rgba(0,0,0,.25);">🖨️ طباعة</button>
+    <script>function doPrint(){ if(window.flutter_inappwebview){ window.flutter_inappwebview.callHandler('printCurrentPage'); } else { window.print(); } }</script>
+    <div class="container">
+        <!-- رأس الصفحة -->
+        <div class="header">
+            <img src="../assets/logo-right.png" alt="اللوقو" class="logo" onerror="this.style.display='none'">
+            <div class="header-title">
+                <h1>إدارة الفحص الفني</h1>
+                <p>قسم الفحص الفني / الفروانية</p>
+            </div>
+            <img src="../assets/logo-left.png" alt="اللوقو" class="logo" onerror="this.style.display='none'">
+        </div>
+        
+        <!-- النص الرسمي -->
+        <div class="formal-greeting">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <div style="font-size:22px;">السيد / مدير إدارة الفحص الفني     المحترم</div>
+                <div style="font-size:14px;">صادر رقم / ........................</div>
+            </div>
+            نرسل لسيادتكم الإحصائية الشهرية التي تم فحصها فنيا من قبل<br>
+            قسم الفحص الفني – الفروانية
+        </div>
+        
+        <!-- معلومات الفترة -->
+        <div class="period-info">
+            <h2>الموضوع / الإحصائية الشهرية</h2>
+            <p>شهر: <span id="month-name">--</span></p>
+        </div>
+        
+        <!-- الجدول الشهري -->
+        <table>
+            <thead>
+                <tr>
+                    <th>نوع المعاملة</th>
+                    <th>الأسبوع 1</th>
+                    <th>الأسبوع 2</th>
+                    <th>الأسبوع 3</th>
+                    <th>الأسبوع 4</th>
+                    <th>الأسبوع 5</th>
+                    <th>الإجمالي</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="type-name">خصوصي</td>
+                    <td id="w1_private">0</td>
+                    <td id="w2_private">0</td>
+                    <td id="w3_private">0</td>
+                    <td id="w4_private">0</td>
+                    <td id="w5_private">0</td>
+                    <td id="total_private">0</td>
+                </tr>
+                <tr>
+                    <td class="type-name">نقل خاص</td>
+                    <td id="w1_special">0</td>
+                    <td id="w2_special">0</td>
+                    <td id="w3_special">0</td>
+                    <td id="w4_special">0</td>
+                    <td id="w5_special">0</td>
+                    <td id="total_special">0</td>
+                </tr>
+                <tr>
+                    <td class="type-name">نقل عام</td>
+                    <td id="w1_general">0</td>
+                    <td id="w2_general">0</td>
+                    <td id="w3_general">0</td>
+                    <td id="w4_general">0</td>
+                    <td id="w5_general">0</td>
+                    <td id="total_general">0</td>
+                </tr>
+                <tr>
+                    <td class="type-name">دراجات نارية</td>
+                    <td id="w1_motorcycles">0</td>
+                    <td id="w2_motorcycles">0</td>
+                    <td id="w3_motorcycles">0</td>
+                    <td id="w4_motorcycles">0</td>
+                    <td id="w5_motorcycles">0</td>
+                    <td id="total_motorcycles">0</td>
+                </tr>
+                <tr>
+                    <td class="type-name">تغيير لون</td>
+                    <td id="w1_color">0</td>
+                    <td id="w2_color">0</td>
+                    <td id="w3_color">0</td>
+                    <td id="w4_color">0</td>
+                    <td id="w5_color">0</td>
+                    <td id="total_color">0</td>
+                </tr>
+                <tr>
+                    <td class="type-name">يسمح بالجر</td>
+                    <td id="w1_towing">0</td>
+                    <td id="w2_towing">0</td>
+                    <td id="w3_towing">0</td>
+                    <td id="w4_towing">0</td>
+                    <td id="w5_towing">0</td>
+                    <td id="total_towing">0</td>
+                </tr>
+                <tr class="total-row">
+                    <td>إجمالي الأسبوع</td>
+                    <td id="w1_total">0</td>
+                    <td id="w2_total">0</td>
+                    <td id="w3_total">0</td>
+                    <td id="w4_total">0</td>
+                    <td id="w5_total">0</td>
+                    <td id="grand_total" class="grand-total">0</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div style="text-align: left; margin-top: 60px; padding-top: 15px;">
+            <p style="color: #000; font-size: 15px; font-weight: bold;">رئيس قسم الفحص الفني / الفروانية</p>
+        </div>
+    </div>
+    
+    <script>
+        window.fillData = function(data) {
+            // تحديث اسم الشهر
+            if (data.monthName) {
+                document.getElementById('month-name').innerText = data.monthName;
+            }
+            
+            const types = ['private', 'special', 'general', 'motorcycles', 'color', 'towing'];
+            let grandTotal = 0;
+            
+            // تعبئة البيانات حسب النوع
+            types.forEach(type => {
+                let typeTotal = 0;
+                
+                for (let w = 1; w <= 5; w++) {
+                    const value = data.weeklyData && data.weeklyData[`week${w}`] ? 
+                        (data.weeklyData[`week${w}`][type] || 0) : 0;
+                    const cell = document.getElementById(`w${w}_${type}`);
+                    if (cell) cell.innerText = value;
+                    typeTotal += value;
+                }
+                
+                const totalCell = document.getElementById(`total_${type}`);
+                if (totalCell) totalCell.innerText = typeTotal;
+                grandTotal += typeTotal;
+            });
+            
+            // إجمالي كل أسبوع
+            for (let w = 1; w <= 5; w++) {
+                let weekTotal = 0;
+                types.forEach(type => {
+                    weekTotal += parseInt(document.getElementById(`w${w}_${type}`).innerText) || 0;
+                });
+                const wtCell = document.getElementById(`w${w}_total`);
+                if (wtCell) wtCell.innerText = weekTotal;
+            }
+            
+            // الإجمالي العام
+            document.getElementById('grand_total').innerText = grandTotal;
+        }
+        
+        if (window.monthlyPrintData) {
+            fillData(window.monthlyPrintData);
+        }
+
+        // قراءة البيانات من localStorage عند التنقل المباشر (WebView / mobile)
+        (function() {
+            try {
+                var stored = localStorage.getItem('__printData');
+                if (stored) {
+                    var data = JSON.parse(stored);
+                    localStorage.removeItem('__printData');
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', function() { fillData(data); });
+                    } else {
+                        fillData(data);
+                    }
+                }
+            } catch(e) { console.error('Print load error:', e); }
+        })();
+    </script>
+</body>
+</html>

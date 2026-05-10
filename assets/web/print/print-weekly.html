@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>النموذج الأسبوعي - قسم الفحص الفني</title>
+    <style>
+        * { margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Arial', serif;
+            direction: rtl;
+            padding: 20px;
+            background: white;
+        }
+        
+        .container {
+            background: white;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px 40px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .logo {
+            height: 100px;
+        }
+        
+        .header-title {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .header-title h1 {
+            color: #000;
+            font-size: 22px;
+            margin-bottom: 3px;
+            font-weight: bold;
+        }
+        
+        .header-title p {
+            color: #000;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 1px 0;
+        }
+        
+        .formal-greeting {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 15px 0;
+            font-family: 'Arial';
+            font-size: 16px;
+            color: #000;
+            font-weight: bold;
+            border-bottom: 1px solid #ccc;
+        }
+        
+        .period-info {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: white;
+            border: none;
+        }
+        
+        .period-info h2 {
+            color: #000;
+            font-size: 22px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .period-info p {
+            color: #000;
+            font-size: 12px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            font-size: 12px;
+        }
+        
+        thead {
+            background: #d3d3d3;
+            color: #000;
+        }
+        
+        thead th {
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #000;
+            color: #000;
+            font-size: 11px;
+        }
+        
+        tbody td {
+            padding: 8px;
+            border: 1px solid #000;
+            text-align: center;
+            color: #000;
+            font-size: 11px;
+        }
+        
+        tbody tr {
+            background: white;
+        }
+        
+        tbody tr:nth-child(even) {
+            background: #f0f0f0;
+        }
+        
+        tbody tr:last-child {
+            background: #d3d3d3;
+            color: #000;
+            font-weight: bold;
+        }
+        
+        thead th:first-child,
+        tbody td:first-child {
+            text-align: right;
+            padding-left: 12px;
+            min-width: 150px;
+        }
+        
+        .type-name {
+            font-weight: bold;
+            text-align: right;
+        }
+        
+        .summary {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background: #f9f9f9;
+        }
+        
+        .summary p {
+            color: #000;
+            font-size: 11px;
+            margin: 5px 0;
+        }
+        
+        .footer {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            font-size: 11px;
+            color: #000;
+        }
+        
+        .signature-box {
+            width: 100px;
+            height: 50px;
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: center;
+        }
+        
+        .signature-label {
+            font-size: 10px;
+            margin-top: 8px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .print-date {
+            text-align: center;
+            color: #000;
+            font-size: 10px;
+            margin-top: 15px;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <style>@media print{.no-print{display:none!important;}}</style>
+    <button class="no-print" onclick="window.flutter_inappwebview ? window.flutter_inappwebview.callHandler('goBackToApp') : history.back()" style="position:fixed;top:12px;right:12px;z-index:9999;background:#1a73e8;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:15px;font-family:Arial,sans-serif;cursor:pointer;direction:rtl;box-shadow:0 2px 6px rgba(0,0,0,.25);">← رجوع</button>
+    <button class="no-print" onclick="doPrint()" style="position:fixed;top:12px;left:12px;z-index:9999;background:#2e7d32;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:15px;font-family:Arial,sans-serif;cursor:pointer;direction:rtl;box-shadow:0 2px 6px rgba(0,0,0,.25);">🖨️ طباعة</button>
+    <script>function doPrint(){ if(window.flutter_inappwebview){ window.flutter_inappwebview.callHandler('printCurrentPage'); } else { window.print(); } }</script>
+    <div class="container">
+        <!-- رأس الصفحة -->
+        <div class="header">
+            <img src="../assets/logo-right.png" alt="اللوقو" class="logo" onerror="this.style.display='none'">
+            <div class="header-title">
+                <h1>إدارة الفحص الفني</h1>
+                <p>قسم الفحص الفني / الفروانية</p>
+            </div>
+            <img src="../assets/logo-left.png" alt="اللوقو" class="logo" onerror="this.style.display='none'">
+        </div>
+        
+        <!-- النص الرسمي -->
+        <div class="formal-greeting">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <div style="font-size:22px;">السيد / مدير إدارة الفحص الفني     المحترم</div>
+                <div style="font-size:14px;">صادر رقم / ........................</div>
+            </div>
+            نرسل لسيادتكم الإحصائية الأسبوعية التي تم فحصها فنيا من قبل<br>
+            قسم الفحص الفني – الفروانية
+        </div>
+        
+        <!-- معلومات الفترة -->
+        <div class="period-info">
+            <h2>الموضوع / الإحصائية الأسبوعية</h2>
+            <p>الفترة: <span id="start-date">--/--/----</span> إلى <span id="end-date">--/--/----</span></p>
+        </div>
+        
+        <!-- الجدول الأسبوعي (5 أيام) -->
+        <table>
+            <thead>
+                <tr>
+                    <th>نوع المعاملة</th>
+                    <th>الأحد</th>
+                    <th>الاثنين</th>
+                    <th>الثلاثاء</th>
+                    <th>الأربعاء</th>
+                    <th>الخميس</th>
+                    <th>الإجمالي</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- صف الخصوصي -->
+                <tr>
+                    <td class="type-name">خصوصي</td>
+                    <td id="sun_private">0</td>
+                    <td id="mon_private">0</td>
+                    <td id="tue_private">0</td>
+                    <td id="wed_private">0</td>
+                    <td id="thu_private">0</td>
+                    <td id="total_private">0</td>
+                </tr>
+                
+                <!-- صف نقل خاص -->
+                <tr>
+                    <td class="type-name">نقل خاص</td>
+                    <td id="sun_special">0</td>
+                    <td id="mon_special">0</td>
+                    <td id="tue_special">0</td>
+                    <td id="wed_special">0</td>
+                    <td id="thu_special">0</td>
+                    <td id="total_special">0</td>
+                </tr>
+                
+                <!-- صف نقل عام -->
+                <tr>
+                    <td class="type-name">نقل عام</td>
+                    <td id="sun_general">0</td>
+                    <td id="mon_general">0</td>
+                    <td id="tue_general">0</td>
+                    <td id="wed_general">0</td>
+                    <td id="thu_general">0</td>
+                    <td id="total_general">0</td>
+                </tr>
+                
+                <!-- صف دراجات نارية -->
+                <tr>
+                    <td class="type-name">دراجات نارية</td>
+                    <td id="sun_motorcycles">0</td>
+                    <td id="mon_motorcycles">0</td>
+                    <td id="tue_motorcycles">0</td>
+                    <td id="wed_motorcycles">0</td>
+                    <td id="thu_motorcycles">0</td>
+                    <td id="total_motorcycles">0</td>
+                </tr>
+                
+                <!-- صف تغيير لون -->
+                <tr>
+                    <td class="type-name">تغيير لون</td>
+                    <td id="sun_color">0</td>
+                    <td id="mon_color">0</td>
+                    <td id="tue_color">0</td>
+                    <td id="wed_color">0</td>
+                    <td id="thu_color">0</td>
+                    <td id="total_color">0</td>
+                </tr>
+                
+                <!-- صف الجر -->
+                <tr>
+                    <td class="type-name">يسمح بالجر</td>
+                    <td id="sun_towing">0</td>
+                    <td id="mon_towing">0</td>
+                    <td id="tue_towing">0</td>
+                    <td id="wed_towing">0</td>
+                    <td id="thu_towing">0</td>
+                    <td id="total_towing">0</td>
+                </tr>
+                
+                <!-- صف الإجمالي اليومي -->
+                <tr class="total-row">
+                    <td class="type-name">إجمالي اليوم</td>
+                    <td id="sun_total">0</td>
+                    <td id="mon_total">0</td>
+                    <td id="tue_total">0</td>
+                    <td id="wed_total">0</td>
+                    <td id="thu_total">0</td>
+                    <td id="grand_total">0</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div style="text-align: left; margin-top: 60px; padding-top: 15px;">
+            <p style="color: #000; font-size: 15px; font-weight: bold;">رئيس قسم الفحص الفني / الفروانية</p>
+        </div>
+    </div>
+    
+    <!-- السكريبت -->
+    <script>
+        // دالة تعبئة الجدول الأسبوعي
+        window.fillData = function(d) { window.loadWeeklyData(d); };
+        window.loadWeeklyData = function(data) {
+            // تحديث التواريخ
+            if (data.startDate) {
+                document.getElementById('start-date').innerText = formatDate(data.startDate);
+            }
+            if (data.endDate) {
+                document.getElementById('end-date').innerText = formatDate(data.endDate);
+            }
+            
+            // الأيام
+            const days = ['sun', 'mon', 'tue', 'wed', 'thu'];
+            const dayLabels = ['sun', 'mon', 'tue', 'wed', 'thu'];
+            const types = ['private', 'special', 'general', 'motorcycles', 'color', 'towing'];
+            
+            let grandTotal = 0;
+            
+            // تحديث البيانات حسب النوع
+            types.forEach(type => {
+                let typeTotal = 0;
+                
+                days.forEach((day, index) => {
+                    const cellId = `${day}_${type}`;
+                    const cell = document.getElementById(cellId);
+                    const value = data.dailyData && data.dailyData[dayLabels[index]] ? 
+                        (data.dailyData[dayLabels[index]][type] || 0) : 0;
+                    
+                    if (cell) {
+                        cell.innerText = value;
+                    }
+                    typeTotal += value;
+                });
+                
+                const totalCell = document.getElementById(`total_${type}`);
+                if (totalCell) {
+                    totalCell.innerText = typeTotal;
+                }
+                
+                grandTotal += typeTotal;
+            });
+            
+            // تحديث إجمالي كل يوم
+            days.forEach((day, index) => {
+                let dayTotal = 0;
+                types.forEach(type => {
+                    const value = parseInt(document.getElementById(`${day}_${type}`).innerText) || 0;
+                    dayTotal += value;
+                });
+                const dayTotalCell = document.getElementById(`${day}_total`);
+                if (dayTotalCell) {
+                    dayTotalCell.innerText = dayTotal;
+                }
+            });
+            
+            // تحديث الإجمالي العام
+            document.getElementById('grand_total').innerText = grandTotal;
+            
+            
+            // تاريخ الطباعة
+            const pdEl = document.getElementById('print-date');
+            if (pdEl) pdEl.innerText = new Date().toLocaleDateString('ar-u-ca-gregory-nu-latn');
+        }
+        
+        // دالة تنسيق التاريخ
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ar-u-ca-gregory-nu-latn');
+        }
+        
+        // تحميل البيانات عند فتح الصفحة إذا كانت موجودة
+        if (window.weeklyPrintData) {
+            loadWeeklyData(window.weeklyPrintData);
+        }
+
+        // قراءة البيانات من localStorage عند التنقل المباشر (WebView / mobile)
+        (function() {
+            try {
+                var stored = localStorage.getItem('__printData');
+                if (stored) {
+                    var data = JSON.parse(stored);
+                    localStorage.removeItem('__printData');
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', function() { loadWeeklyData(data); });
+                    } else {
+                        loadWeeklyData(data);
+                    }
+                }
+            } catch(e) { console.error('Print load error:', e); }
+        })();
+    </script>
+</body>
+</html>

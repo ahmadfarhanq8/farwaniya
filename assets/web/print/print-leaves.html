@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>سجل الإجازات</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', 'Tahoma', sans-serif; background: white; padding: 20px; direction: rtl; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px double #333;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .header img { height: 80px; }
+        
+        .header-center {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .header-center h1 {
+            font-size: 20px;
+            color: #000;
+            margin-bottom: 5px;
+        }
+        
+        .header-center h2 {
+            font-size: 16px;
+            color: #000;
+        }
+        
+        .header-center h3 {
+            font-size: 15px;
+            color: #000;
+            margin-top: 8px;
+        }
+        
+        .header-center .date {
+            font-size: 14px;
+            color: #000;
+            margin-top: 8px;
+        }
+        
+        .summary {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .summary-box {
+            border: 1px solid #000;
+            padding: 10px 24px;
+            font-size: 12px;
+            color: #000;
+            font-weight: bold;
+            background: #f9f9f9;
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .summary-box .value {
+            font-size: 18px;
+            font-weight: bold;
+            display: block;
+            margin-top: 4px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+        
+        thead {
+            background: #d3d3d3;
+            color: #000;
+        }
+        
+        thead th {
+            padding: 8px 10px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #000;
+            color: #000;
+            font-size: 12px;
+        }
+        
+        tbody td {
+            padding: 8px 10px;
+            border: 1px solid #000;
+            text-align: center;
+            color: #000;
+            font-size: 12px;
+        }
+        
+        tbody tr:nth-child(even) {
+            background: #f0f0f0;
+        }
+        
+        .status-active { font-weight: bold; color: #000; }
+        .status-upcoming { font-weight: bold; color: #000; }
+        .status-ended { font-weight: bold; color: #000; }
+        
+        .footer {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #000;
+            border-top: 1px solid #000;
+            padding-top: 15px;
+        }
+        
+        .signature-block {
+            text-align: center;
+            min-width: 180px;
+        }
+        
+        .signature-label {
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 40px;
+        }
+        
+        .signature-line {
+            border-top: 1px solid #000;
+            padding-top: 5px;
+            font-size: 11px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            color: #000;
+            background: #e8e8e8;
+            padding: 8px 15px;
+            margin: 25px 0 10px 0;
+            border: 1px solid #000;
+            border-bottom: none;
+            text-align: center;
+        }
+
+        .section-title:first-of-type {
+            margin-top: 0;
+        }
+
+        @page { size: A4 landscape; margin: 10mm; }
+        html, body { width: 297mm; }
+        @media print {
+            #landscape-notice { display: none !important; }
+            body { padding: 10px; }
+            @page { size: A4 landscape; margin: 10mm; }
+        }
+    </style>
+</head>
+<body>
+    <style>@media print{.no-print{display:none!important;}}</style>
+    <button class="no-print" onclick="window.flutter_inappwebview ? window.flutter_inappwebview.callHandler('goBackToApp') : history.back()" style="position:fixed;top:12px;right:12px;z-index:9999;background:#1a73e8;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:15px;font-family:Arial,sans-serif;cursor:pointer;direction:rtl;box-shadow:0 2px 6px rgba(0,0,0,.25);">← رجوع</button>
+    <button class="no-print" onclick="doPrint()" style="position:fixed;top:12px;left:12px;z-index:9999;background:#2e7d32;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:15px;font-family:Arial,sans-serif;cursor:pointer;direction:rtl;box-shadow:0 2px 6px rgba(0,0,0,.25);">🖨️ طباعة</button>
+    <script>function doPrint(){ if(window.flutter_inappwebview){ window.flutter_inappwebview.callHandler('printCurrentPage'); } else { window.print(); } }</script>
+    <div id="landscape-notice" style="background:#fff3cd;border:2px solid #f39c12;border-radius:8px;padding:12px 16px;margin-bottom:14px;text-align:center;font-size:14px;font-weight:bold;color:#856404;">
+        ⚠️ تأكد من اختيار <strong>أفقي (Landscape)</strong> في إعدادات الطباعة
+    </div>
+    <div class="header">
+        <img src="../assets/logo-right.png" alt="شعار" onerror="this.style.display='none'">
+        <div class="header-center">
+            <h1>إدارة الفحص الفني</h1>
+            <h2>قسم الفحص الفني / الفروانية</h2>
+            <h3>سجل الإجازات</h3>
+            <div class="date" id="print-filter-info"></div>
+        </div>
+        <img src="../assets/logo-left.png" alt="شعار" onerror="this.style.display='none'">
+    </div>
+
+    <div class="summary" id="print-summary"></div>
+
+    <div id="officers-section" style="display:none;">
+        <h4 class="section-title">إجازات الضباط</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:35px;">#</th>
+                    <th>الرتبة</th>
+                    <th style="width:160px;">الاسم</th>
+                    <th>نوع الإجازة</th>
+                    <th>بداية الإجازة</th>
+                    <th>نهاية الإجازة</th>
+                    <th>تاريخ المباشرة</th>
+                    <th>الأيام</th>
+                    <th>الحالة</th>
+                    <th>ملاحظات</th>
+                </tr>
+            </thead>
+            <tbody id="officers-tbody"></tbody>
+        </table>
+    </div>
+
+    <div id="employees-section" style="display:none;">
+        <h4 class="section-title">إجازات الموظفين</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:35px;">#</th>
+                    <th style="width:160px;">الاسم</th>
+                    <th>نوع الإجازة</th>
+                    <th>بداية الإجازة</th>
+                    <th>نهاية الإجازة</th>
+                    <th>تاريخ المباشرة</th>
+                    <th>الأيام</th>
+                    <th>الحالة</th>
+                    <th>ملاحظات</th>
+                </tr>
+            </thead>
+            <tbody id="employees-tbody"></tbody>
+        </table>
+    </div>
+
+    <script>
+    window.__selfPrint = true;
+    window.fillData = window.fillLeavesData = function(data) {
+        // معلومات الفلتر
+        var filterInfo = 'تاريخ الطباعة: ' + new Date().toLocaleDateString('ar-EG');
+        if (data.filterType && data.filterType !== 'all') {
+            filterInfo += ' | النوع: ' + (data.filterType === 'employee' ? 'موظفين' : 'ضباط');
+        }
+        if (data.filterCategory && data.filterCategory !== 'all') {
+            filterInfo += ' | نوع الإجازة: ' + data.filterCategory;
+        }
+        if (data.filterStatus && data.filterStatus !== 'all') {
+            filterInfo += ' | الحالة: ' + data.filterStatus;
+        }
+        document.getElementById('print-filter-info').textContent = filterInfo;
+
+        // الملخص
+        var total = data.leaves.length;
+        var active = 0, upcoming = 0, ended = 0;
+        data.leaves.forEach(function(l) {
+            if (l.status === 'جارية') active++;
+            else if (l.status === 'قادمة') upcoming++;
+            else ended++;
+        });
+        document.getElementById('print-summary').innerHTML =
+            '<div class="summary-box">الإجمالي<span class="value">' + total + '</span></div>' +
+            '<div class="summary-box">جارية<span class="value">' + active + '</span></div>' +
+            '<div class="summary-box">قادمة<span class="value">' + upcoming + '</span></div>' +
+            '<div class="summary-box">منتهية<span class="value">' + ended + '</span></div>';
+
+        // فصل الضباط عن الموظفين
+        var officers = data.leaves.filter(function(l) { return l.person_type === 'officer'; });
+        var employees = data.leaves.filter(function(l) { return l.person_type === 'employee'; });
+
+        function buildRows(list) {
+            var html = '';
+            list.forEach(function(l, i) {
+                var statusClass = l.status === 'جارية' ? 'status-active' : l.status === 'قادمة' ? 'status-upcoming' : 'status-ended';
+                html += '<tr>';
+                html += '<td>' + (i + 1) + '</td>';
+                html += '<td style="text-align:right;font-weight:bold;">' + (l.person_name || '-') + '</td>';
+                html += '<td>' + (l.leave_type || '-') + '</td>';
+                html += '<td>' + (l.start_date || '-') + '</td>';
+                html += '<td>' + (l.end_date || '-') + '</td>';
+                html += '<td>' + (l.return_date || '-') + '</td>';
+                html += '<td style="font-weight:bold;">' + (l.days || '-') + '</td>';
+                html += '<td class="' + statusClass + '">' + (l.status || '-') + '</td>';
+                html += '<td style="font-size:10px;">' + (l.notes || '-') + '</td>';
+                html += '</tr>';
+            });
+            return html;
+        }
+
+        function buildOfficerRows(list) {
+            var html = '';
+            list.forEach(function(l, i) {
+                var statusClass = l.status === 'جارية' ? 'status-active' : l.status === 'قادمة' ? 'status-upcoming' : 'status-ended';
+                html += '<tr>';
+                html += '<td>' + (i + 1) + '</td>';
+                html += '<td style="font-weight:bold;">' + (l.rank || '-') + '</td>';
+                html += '<td style="text-align:right;font-weight:bold;">' + (l.person_name || '-') + '</td>';
+                html += '<td>' + (l.leave_type || '-') + '</td>';
+                html += '<td>' + (l.start_date || '-') + '</td>';
+                html += '<td>' + (l.end_date || '-') + '</td>';
+                html += '<td>' + (l.return_date || '-') + '</td>';
+                html += '<td style="font-weight:bold;">' + (l.days || '-') + '</td>';
+                html += '<td class="' + statusClass + '">' + (l.status || '-') + '</td>';
+                html += '<td style="font-size:10px;">' + (l.notes || '-') + '</td>';
+                html += '</tr>';
+            });
+            return html;
+        }
+
+        if (officers.length > 0) {
+            document.getElementById('officers-section').style.display = 'block';
+            document.getElementById('officers-tbody').innerHTML = buildOfficerRows(officers);
+        }
+        if (employees.length > 0) {
+            document.getElementById('employees-section').style.display = 'block';
+            document.getElementById('employees-tbody').innerHTML = buildRows(employees);
+        }
+        if (officers.length === 0 && employees.length === 0) {
+            document.getElementById('officers-section').style.display = 'block';
+            document.getElementById('officers-tbody').innerHTML = '<tr><td colspan="10" style="color:#999;padding:20px;">لا توجد إجازات</td></tr>';
+        }
+    };
+    // Fallback: check localStorage
+    window.addEventListener('load', function() {
+        var data = window.__printData || null;
+        if (!data) {
+            try {
+                var stored = localStorage.getItem('__printData');
+                if (stored) { data = JSON.parse(stored); localStorage.removeItem('__printData'); }
+            } catch(e){}
+        }
+        if (data) {
+            window.fillData(data);
+            // لا نطبع تلقائياً - المستخدم يضغط زر الطباعة (تجنب تكرار الطباعة)
+        }
+    });
+    </script>
+</body>
+</html>

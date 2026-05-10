@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>تقرير الاستئذانات الشهري</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', 'Tahoma', sans-serif; background: white; padding: 20px; direction: rtl; }
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 3px double #333; padding-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
+        .header img { height: 70px; }
+        .header-center { flex: 1; text-align: center; }
+        .header h1 { font-size: 20px; color: #000; margin-bottom: 5px; }
+        .header h2 { font-size: 16px; color: #000; }
+        .header h3 { font-size: 15px; color: #000; margin-top: 8px; }
+        .header .date { font-size: 14px; color: #000; margin-top: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+        th, td { border: 1px solid #333; padding: 3px 5px; text-align: center; font-size: 9px; }
+        th { background: #d3d3d3; color: #000; font-weight: bold; }
+        tr:nth-child(even) { background: #f5f5f5; }
+        .cell-start { background: #f0f0f0; font-weight: bold; color: #000; }
+        .cell-end { background: #f0f0f0; font-weight: bold; color: #000; }
+        .cell-date { font-size: 8px; color: #000; display: block; }
+        .total-col { font-weight: bold; font-size: 9px; color: #000; }
+        .total-danger { color: #000; }
+        .total-warning { color: #000; }
+        .total-ok { color: #000; }
+        .footer { margin-top: 30px; display: flex; justify-content: space-between; font-size: 10px; color: #000; }
+        .note { margin-top: 15px; font-size: 9px; color: #000; border-top: 1px solid #000; padding-top: 10px; }
+        .note span { font-weight: bold; }
+        .page-block { page-break-after: always; }
+        .page-block:last-child { page-break-after: auto; }
+        @media print { body { padding: 5px; } @page { size: A4 portrait; margin: 8mm; } }
+    </style>
+</head>
+<body>
+    <style>@media print{.no-print{display:none!important;}}</style>
+    <button class="no-print" onclick="window.flutter_inappwebview ? window.flutter_inappwebview.callHandler('goBackToApp') : history.back()" style="position:fixed;top:12px;right:12px;z-index:9999;background:#1a73e8;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:15px;font-family:Arial,sans-serif;cursor:pointer;direction:rtl;box-shadow:0 2px 6px rgba(0,0,0,.25);">← رجوع</button>
+    <button class="no-print" onclick="doPrint()" style="position:fixed;top:12px;left:12px;z-index:9999;background:#2e7d32;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:15px;font-family:Arial,sans-serif;cursor:pointer;direction:rtl;box-shadow:0 2px 6px rgba(0,0,0,.25);">🖨️ طباعة</button>
+    <script>function doPrint(){ if(window.flutter_inappwebview){ window.flutter_inappwebview.callHandler('printCurrentPage'); } else { window.print(); } }</script>
+    <div class="header">
+        <img src="../assets/logo-right.png" alt="شعار الدولة" onerror="this.style.display='none'">
+        <div class="header-center">
+            <h2>إدارة الفحص الفني - قسم الفحص الفني - الفروانية</h2>
+            <h3>كشف استئذانات الموظفين الشهري</h3>
+            <div class="date" id="print-month"></div>
+        </div>
+        <img src="../assets/logo-left.png" alt="شعار الداخلية" onerror="this.style.display='none'">
+    </div>
+
+    <div id="pages-container"></div>
+
+    <script>
+    var PAGE_SIZE = 40;
+
+    function buildTheadHTML() {
+        return '<thead><tr>' +
+            '<th style="width:30px;">#</th>' +
+            '<th style="width:160px;">الاسم</th>' +
+            '<th>أول استئذان</th>' +
+            '<th>ثاني استئذان</th>' +
+            '<th>ثالث استئذان</th>' +
+            '<th>رابع استئذان</th>' +
+            '<th style="width:50px;">المجموع</th>' +
+            '</tr></thead>';
+    }
+
+    function buildTableRows(rows, startIndex) {
+        var html = '';
+        rows.forEach(function(row, i) {
+            html += '<tr>';
+            html += '<td>' + (startIndex + i + 1) + '</td>';
+            html += '<td style="text-align:right;font-weight:bold;">' + row.name + '</td>';
+            for (var j = 0; j < 4; j++) {
+                var cell = row.cells[j];
+                if (cell) {
+                    var isStart = cell.label.indexOf('بداية') === 0;
+                    var cls = isStart ? 'cell-start' : 'cell-end';
+                    html += '<td class="' + cls + '">' + cell.label + '<span class="cell-date">' + cell.date + '</span></td>';
+                } else {
+                    html += '<td style="color:#ccc;">—</td>';
+                }
+            }
+            var totalClass = row.total > 3 ? 'total-danger' : row.total > 2 ? 'total-warning' : 'total-ok';
+            html += '<td class="total-col ' + totalClass + '">' + row.total + '</td>';
+            html += '</tr>';
+        });
+        return html;
+    }
+
+    window.fillData = doFill;
+    window.fillPermissionsData = doFill;
+    function doFill(data) {
+        var monthEl = document.getElementById('print-month');
+        if (monthEl) monthEl.textContent = 'الشهر: ' + data.month;
+        if (data.title) {
+            var h3 = document.querySelector('.header h3');
+            if (h3) h3.textContent = data.title;
+        }
+
+        var rows = data.rows || [];
+        var container = document.getElementById('pages-container');
+
+        if (!rows.length) {
+            container.innerHTML = '<table>' + buildTheadHTML() + '<tbody><tr><td colspan="7" style="color:#999;padding:20px;">لا توجد استئذانات لهذا الشهر</td></tr></tbody></table>';
+            return;
+        }
+
+        var totalPages = Math.ceil(rows.length / PAGE_SIZE);
+        var html = '';
+        for (var p = 0; p < totalPages; p++) {
+            var chunk = rows.slice(p * PAGE_SIZE, (p + 1) * PAGE_SIZE);
+            html += '<div class="page-block">';
+            if (p > 0) {
+                html += '<div class="header" style="margin-bottom:8px;padding-bottom:8px;">' +
+                    '<img src="../assets/logo-right.png" alt="" onerror="this.style.display=\'none\'">' +
+                    '<div class="header-center">' +
+                    '<h2>إدارة الفحص الفني</h2>' +
+                    '<h3>' + (data.title || 'كشف استئذانات الموظفين الشهري') + '</h3>' +
+                    '<div>صفحة ' + (p+1) + ' / ' + totalPages + '</div>' +
+                    '</div>' +
+                    '<img src="../assets/logo-left.png" alt="" onerror="this.style.display=\'none\'">' +
+                    '</div>';
+            }
+            html += '<table>' + buildTheadHTML() + '<tbody>' + buildTableRows(chunk, p * PAGE_SIZE) + '</tbody></table>';
+            html += '</div>';
+        }
+        container.innerHTML = html;
+    }
+
+    // Auto-load from localStorage on page load
+    (function() {
+        try {
+            var stored = localStorage.getItem('__printData');
+            if (stored) {
+                var data = JSON.parse(stored);
+                localStorage.removeItem('__printData');
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', function() { doFill(data); });
+                } else {
+                    doFill(data);
+                }
+            }
+        } catch(e) { console.error('Print load error:', e); }
+    })();
+    </script>
+</body>
+</html>

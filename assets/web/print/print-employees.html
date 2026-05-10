@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>قائمة الموظفين</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', 'Tahoma', sans-serif; background: white; padding: 20px; direction: rtl; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px double #333;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .header img { height: 70px; }
+        .header-center { flex: 1; text-align: center; }
+        .header-center h1 { font-size: 20px; color: #000; margin-bottom: 5px; }
+        .header-center h2 { font-size: 16px; color: #000; }
+        .header-center .meta { font-size: 13px; color: #000; margin-top: 8px; }
+        .summary {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .summary-box {
+            border: 1px solid #000;
+            padding: 10px 18px;
+            font-size: 12px;
+            color: #000;
+            font-weight: bold;
+            background: #f5f5f5;
+            text-align: center;
+            min-width: 140px;
+        }
+        .summary-box .value { display: block; margin-top: 4px; font-size: 18px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+        th, td { border: 1px solid #333; padding: 3px 5px; text-align: center; font-size: 9px; color: #000; }
+        th { background: #d3d3d3; font-weight: bold; }
+        tr:nth-child(even) { background: #f5f5f5; }
+        .text-right { text-align: right; font-weight: bold; }
+        .page-block { page-break-after: always; margin-bottom: 0; }
+        .page-block:last-child { page-break-after: auto; }
+        @media print {
+            body { padding: 5px; }
+            @page { size: A4 portrait; margin: 8mm; }
+        }
+    </style>
+</head>
+<body>
+    <style>@media print{.no-print{display:none!important;}}</style>
+    <button class="no-print" onclick="window.flutter_inappwebview ? window.flutter_inappwebview.callHandler('goBackToApp') : history.back()" style="position:fixed;top:12px;right:12px;z-index:9999;background:#1a73e8;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:15px;font-family:Arial,sans-serif;cursor:pointer;direction:rtl;box-shadow:0 2px 6px rgba(0,0,0,.25);">← رجوع</button>
+    <button class="no-print" onclick="doPrint()" style="position:fixed;top:12px;left:12px;z-index:9999;background:#2e7d32;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:15px;font-family:Arial,sans-serif;cursor:pointer;direction:rtl;box-shadow:0 2px 6px rgba(0,0,0,.25);">🖨️ طباعة</button>
+    <script>function doPrint(){ if(window.flutter_inappwebview){ window.flutter_inappwebview.callHandler('printCurrentPage'); } else { window.print(); } }</script>
+    <div class="header">
+        <img src="../assets/logo-right.png" alt="شعار" onerror="this.style.display='none'">
+        <div class="header-center">
+            <h1>إدارة الفحص الفني</h1>
+            <h2>قائمة الموظفين</h2>
+            <div class="meta" id="print-meta"></div>
+        </div>
+        <img src="../assets/logo-left.png" alt="شعار" onerror="this.style.display='none'">
+    </div>
+
+    <div class="summary" id="print-summary"></div>
+
+    <div id="pages-container"></div>
+
+    <script>
+    var PAGE_SIZE = 40;
+
+    function buildTableHTML(rows, startIndex) {
+        var thead = '<thead><tr>' +
+            '<th style="width:30px;">#</th>' +
+            '<th style="width:160px;">الاسم</th>' +
+            '<th>الرقم المدني</th>' +
+            '<th>القسم</th>' +
+            '<th>الفترة</th>' +
+            '<th>المسمى</th>' +
+            '<th>الهاتف</th>' +
+            '</tr></thead>';
+        var tbody = '<tbody>' + rows.map(function(row, i) {
+            return '<tr>' +
+                '<td>' + (startIndex + i + 1) + '</td>' +
+                '<td class="text-right">' + row.name + '</td>' +
+                '<td>' + row.number + '</td>' +
+                '<td>' + row.department + '</td>' +
+                '<td>' + row.shift + '</td>' +
+                '<td>' + row.position + '</td>' +
+                '<td>' + row.phone + '</td>' +
+                '</tr>';
+        }).join('') + '</tbody>';
+        return '<table>' + thead + tbody + '</table>';
+    }
+
+    window.fillData = doFill;
+    function doFill(data) {
+        var meta = 'الفئة: ' + (data.filterLabel || 'الكل') + ' | تاريخ الطباعة: ' + new Date().toLocaleDateString('ar-EG');
+        if (data.searchText) meta += ' | البحث: ' + data.searchText;
+        document.getElementById('print-meta').textContent = meta;
+
+        var rows = data.rows || [];
+        var morningCount = rows.filter(function(row){ return row.shift === 'صبح'; }).length;
+        var eveningCount = rows.filter(function(row){ return row.shift === 'عصر'; }).length;
+
+        document.getElementById('print-summary').innerHTML =
+            '<div class="summary-box">الإجمالي<span class="value">' + rows.length + '</span></div>' +
+            '<div class="summary-box">فترة الصبح<span class="value">' + morningCount + '</span></div>' +
+            '<div class="summary-box">فترة العصر<span class="value">' + eveningCount + '</span></div>';
+
+        var container = document.getElementById('pages-container');
+        if (!rows.length) {
+            container.innerHTML = '<table><tbody><tr><td colspan="7" style="color:#999;padding:20px;">لا توجد بيانات</td></tr></tbody></table>';
+            return;
+        }
+
+        var totalPages = Math.ceil(rows.length / PAGE_SIZE);
+        var html = '';
+        for (var p = 0; p < totalPages; p++) {
+            var chunk = rows.slice(p * PAGE_SIZE, (p + 1) * PAGE_SIZE);
+            html += '<div class="page-block">';
+            if (p > 0) {
+                html += '<div class="header" style="margin-bottom:10px;padding-bottom:8px;">' +
+                    '<img src="../assets/logo-right.png" alt="" onerror="this.style.display=\'none\'"> ' +
+                    '<div class="header-center"><h1>إدارة الفحص الفني</h1><h2>قائمة الموظفين</h2>' +
+                    '<div class="meta">' + meta + ' | صفحة ' + (p+1) + ' / ' + totalPages + '</div></div>' +
+                    '<img src="../assets/logo-left.png" alt="" onerror="this.style.display=\'none\'">' +
+                    '</div>';
+            }
+            html += buildTableHTML(chunk, p * PAGE_SIZE);
+            html += '</div>';
+        }
+        container.innerHTML = html;
+    }
+
+    (function() {
+        try {
+            var stored = localStorage.getItem('__printData');
+            if (stored) {
+                var data = JSON.parse(stored);
+                localStorage.removeItem('__printData');
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', function() { doFill(data); });
+                } else {
+                    doFill(data);
+                }
+            }
+        } catch(e) { console.error('Print load error:', e); }
+    })();
+    </script>
+</body>
+</html>
