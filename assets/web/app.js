@@ -1098,7 +1098,7 @@ function loadEmployeeDashboard() {
         const iconEl = card ? card.querySelector('.emp-leave-icon') : null;
         const activeLeave = myLeaves.find(l => getLeaveStatus(l) === 'جارية' && normalizeApprovalStatus(l.status) === 'approved');
         if (activeLeave) {
-            statusEl.textContent = '🌴 أنت في إجازة';
+            statusEl.textContent = 'إجازة سارية حالياً';
             if (subEl) subEl.textContent = `${activeLeave.leave_type || 'إجازة'} • ${activeLeave.start_date} → ${activeLeave.end_date}`;
             if (iconEl) iconEl.textContent = '🌴';
             if (card) {
@@ -2027,7 +2027,7 @@ function loadOfficerDashboard() {
         const iconEl = card ? card.querySelector('.emp-leave-icon') : null;
         const activeLeave = myLeaves.find(l => getLeaveStatus(l) === 'جارية' && normalizeApprovalStatus(l.status) === 'approved');
         if (activeLeave) {
-            statusEl.textContent = '🌴 أنت في إجازة';
+            statusEl.textContent = 'إجازة سارية حالياً';
             if (subEl) subEl.textContent = `${activeLeave.leave_type || 'إجازة'} • ${activeLeave.start_date} → ${activeLeave.end_date}`;
             if (iconEl) iconEl.textContent = '🌴';
             if (card) {
