@@ -127,7 +127,7 @@
     function _setupRealtime() {
         var tables = ['employees','officers','leaves','notes','statistics',
             'employee_files','officer_files','leave_permissions',
-            'custom_archive_types','notifications','accounts',
+            'custom_archive_types','notifications',
             'other_requests','admin_notifications_store','app_settings'];
         tables.forEach(function (t) {
             _sb.channel('rt:' + t)
@@ -805,61 +805,82 @@
     }
 
     // ═══════════════════════════════════════════════════════════
-    // Accounts
+    // Accounts — تستخدم SECURITY DEFINER RPC functions لحماية كلمات المرور
+    // (الوصول المباشر لجدول accounts ممنوع لـ anon)
     // ═══════════════════════════════════════════════════════════
     async function getAccounts() {
-        return _select('accounts', null);
+        var sb = _require();
+        var res = await sb.rpc('rpc_list_accounts');
+        if (res.error) { console.warn('rpc_list_accounts:', res.error); return []; }
+        return res.data || [];
     }
 
     async function addAccount(data) {
         var sb = _require();
-        var dup = await sb.from('accounts').select('id').eq('username', data.username).maybeSingle();
-        if (dup.data) return { error: 'اسم المستخدم مستخدم مسبقاً' };
-        var pwd = data.password ? await hashPassword(data.password) : '';
-        var id = await _insert('accounts', {
-            username: data.username,
-            password: pwd,
-            role: data.role,
-            person_id: data.personId || null
+        var res = await sb.rpc('rpc_add_account', {
+            p_username : data.username,
+            p_password : data.password || '',
+            p_role     : data.role,
+            p_person_id: data.personId || null
         });
-        if (!id) return { error: 'فشل في إنشاء الحساب' };
-        return { id: id };
+        if (res.error) {
+            var msg = (res.error.message || '').toLowerCase();
+            if (msg.indexOf('exists') !== -1) return { error: 'اسم المستخدم مستخدم مسبقاً' };
+            return { error: 'فشل في إنشاء الحساب' };
+        }
+        return { id: res.data };
     }
 
     async function updateAccount(id, data) {
         var sb = _require();
-        var dup = await sb.from('accounts').select('id').eq('username', data.username).neq('id', id).maybeSingle();
-        if (dup.data) return { error: 'اسم المستخدم مستخدم مسبقاً' };
-        var patch = { username: data.username, role: data.role };
-        if (data.password) {
-            // إذا كانت كلمة السر مُرسلة بالفعل كـ hash (من updateAccount داخلية) لا نُعيد التشفير
-            patch.password = isHashed(data.password) ? data.password : await hashPassword(data.password);
+        // إذا كانت كلمة السر hash من المتصل (مثل ترقيات داخلية)، أرسلها كما هي
+        // لكن RPC الحالي يعيد التشفير. لذلك نمرّر فقط plain text أو null.
+        var pwd = null;
+        if (data.password && !isHashed(data.password)) pwd = data.password;
+        var res = await sb.rpc('rpc_update_account', {
+            p_id      : id,
+            p_username: data.username,
+            p_role    : data.role,
+            p_password: pwd
+        });
+        if (res.error) {
+            var msg = (res.error.message || '').toLowerCase();
+            if (msg.indexOf('exists') !== -1) return { error: 'اسم المستخدم مستخدم مسبقاً' };
+            return { error: 'فشل في التحديث' };
         }
-        var ok = await _update('accounts', id, patch);
-        return ok ? { ok: true } : { error: 'فشل في التحديث' };
+        return { ok: true };
     }
 
     async function deleteAccount(id) {
-        return _delete('accounts', id);
+        var sb = _require();
+        var res = await sb.rpc('rpc_delete_account', { p_id: id });
+        return !res.error;
     }
 
     async function findAccount(username, password) {
         var sb = _require();
-        var result = await sb.from('accounts')
-            .select('*')
-            .eq('username', username)
-            .maybeSingle();
-        if (result.error || !result.data) return null;
-        var ok = await verifyPassword(password, result.data.password);
-        if (!ok) return null;
-        // ترقية تلقائية: إذا كانت كلمة السر plain-text، نحوّلها لـ hash
-        if (!isHashed(result.data.password)) {
-            try {
-                var newHash = await hashPassword(password);
-                await _update('accounts', result.data.id, { password: newHash });
-            } catch(e) {}
-        }
-        return Object.assign({}, result.data, { personId: result.data.person_id });
+        var res = await sb.rpc('rpc_login', { p_username: username, p_password: password });
+        if (res.error) { console.warn('rpc_login:', res.error); return null; }
+        var row = Array.isArray(res.data) ? res.data[0] : res.data;
+        if (!row) return null;
+        return {
+            id        : row.id,
+            username  : row.username,
+            role      : row.role,
+            person_id : row.person_id,
+            personId  : row.person_id
+        };
+    }
+
+    async function changePassword(username, oldPassword, newPassword) {
+        var sb = _require();
+        var res = await sb.rpc('rpc_change_password', {
+            p_username    : username,
+            p_old_password: oldPassword,
+            p_new_password: newPassword
+        });
+        if (res.error) return false;
+        return res.data === true;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -869,10 +890,17 @@
         var sb = _require();
         var tables = ['employee_files','officer_files','leave_permissions','notes',
             'leaves','statistics','custom_archive_types','notifications',
-            'other_requests','admin_notifications_store','officers','employees','accounts'];
+            'other_requests','admin_notifications_store','officers','employees'];
         for (var i = 0; i < tables.length; i++) {
             await sb.from(tables[i]).delete().neq('id', 0);
         }
+        // accounts عبر RPC (الوصول المباشر مقفل)
+        try {
+            var accs = await getAccounts();
+            for (var j = 0; j < (accs || []).length; j++) {
+                await deleteAccount(accs[j].id);
+            }
+        } catch(e) { console.warn('reset accounts:', e); }
         await sb.from('app_settings').delete().neq('key', '__never__');
     }
 
@@ -1078,6 +1106,7 @@
         updateAccount: updateAccount,
         deleteAccount: deleteAccount,
         findAccount: findAccount,
+        changePassword: changePassword,
         hashPassword: hashPassword,
         verifyPassword: verifyPassword,
         isHashed: isHashed,
