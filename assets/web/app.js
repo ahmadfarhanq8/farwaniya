@@ -2946,10 +2946,27 @@ async function login() {
     setLoginButtonLoading(false);
 }
 
-function logout() {
+async function logout() {
     currentUser = null;
     if (_adminPollInterval) { clearInterval(_adminPollInterval); _adminPollInterval = null; }
-    try { if (window.DB && DB.logout) DB.logout(); } catch (e) {}
+    // امسح جلسة Supabase (مهم: قبل كان window.DB غلط → الجلسة كانت تبقى محفوظة فيرجع يدخل تلقائياً)
+    try {
+        if (window.db && typeof window.db.logout === 'function') {
+            await window.db.logout();
+        }
+    } catch (e) { console.warn('logout error:', e); }
+    // امسح "تذكرني" حتى لا تُملأ الحقول تلقائياً
+    try {
+        localStorage.removeItem('rm_u');
+        localStorage.removeItem('rm_p');
+        localStorage.removeItem('rm_on');
+    } catch (e) {}
+    // امسح أي بيانات حساسة في الذاكرة
+    try {
+        employees = []; officers = []; leaves = [];
+        statistics = []; otherRequests = [];
+        accountsCache = []; notificationsCache = []; adminNotifications = [];
+    } catch (e) {}
     showLoginScreen();
 }
 
