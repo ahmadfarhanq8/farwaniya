@@ -60,3 +60,9 @@ ios/Flutter/flutter_export_environment.sh
 .DS_Store
 **/.DS_Store
 backup-*.sql
+
+# iOS build artifacts
+ios/build/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/App.framework
