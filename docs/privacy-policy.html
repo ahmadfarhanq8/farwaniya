@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سياسة الخصوصية – تطبيق الفروانية</title>
+<style>
+  body { font-family: -apple-system, "Segoe UI", Tahoma, Arial, sans-serif; background: #f7f9fc; color: #1f2d3d; max-width: 820px; margin: 0 auto; padding: 24px; line-height: 1.85; }
+  h1 { color: #336EC6; border-bottom: 3px solid #336EC6; padding-bottom: 8px; }
+  h2 { color: #2c5fa5; margin-top: 32px; }
+  h3 { color: #444; }
+  a { color: #336EC6; }
+  ul { padding-right: 20px; }
+  .meta { color: #777; font-size: 0.9em; }
+  .lang-switch { position: sticky; top: 0; background: #f7f9fc; padding: 8px 0; }
+  hr { border: none; border-top: 1px solid #ddd; margin: 40px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+  th, td { border: 1px solid #ddd; padding: 8px 12px; text-align: right; }
+  th { background: #eef3fb; }
+</style>
+</head>
+<body>
+
+<div class="lang-switch"><a href="#en">English ↓</a></div>
+
+<h1>سياسة الخصوصية – تطبيق الفروانية</h1>
+<p class="meta">آخر تحديث: 11 مايو 2026</p>
+
+<p>يحترم تطبيق <strong>الفروانية</strong> (المُشار إليه بـ "التطبيق" أو "نحن") خصوصية المستخدمين، ويلتزم بحماية بياناتهم الشخصية وفق القوانين المعمول بها. توضّح هذه السياسة أنواع البيانات التي نجمعها، وطريقة استخدامها، وحقوق المستخدم.</p>
+
+<h2>1. طبيعة التطبيق</h2>
+<p>التطبيق نظام إداري داخلي لإدارة الموظفين والحضور والإجازات والتنبيهات في فرع شركة الفروانية. الاستخدام مقتصر على الموظفين والمشرفين المُسجَّلين عبر حسابات يُنشئها مشرف النظام؛ لا يوجد تسجيل ذاتي.</p>
+
+<h2>2. البيانات التي نجمعها</h2>
+<table>
+  <thead><tr><th>نوع البيانات</th><th>الغرض</th></tr></thead>
+  <tbody>
+    <tr><td>اسم المستخدم وكلمة المرور (مُجزَّأة عبر bcrypt)</td><td>المصادقة وتسجيل الدخول</td></tr>
+    <tr><td>الاسم الكامل والمسمّى الوظيفي والقسم</td><td>عرض البيانات الإدارية</td></tr>
+    <tr><td>سجلات الحضور والانصراف والإجازات</td><td>الوظيفة الأساسية للتطبيق</td></tr>
+    <tr><td>رمز إشعارات الجهاز (FCM Token)</td><td>إرسال تنبيهات Push</td></tr>
+    <tr><td>سجلات الأحداث (Audit Log) – من قام بأي عملية ومتى</td><td>التحقق والمراجعة الأمنية</td></tr>
+  </tbody>
+</table>
+<p>التطبيق <strong>لا يجمع</strong>: الموقع الجغرافي، جهات الاتصال، الصور (إلا التي يرفعها المستخدم بنفسه ضمن وظيفة الأرشيف)، الكاميرا، الميكروفون.</p>
+
+<h2>3. كيف نستخدم البيانات</h2>
+<ul>
+  <li>تشغيل وظائف التطبيق (تسجيل الحضور، إدارة الإجازات، إرسال التنبيهات).</li>
+  <li>منع الاستخدام غير المشروع وتتبّع المحاولات المشبوهة.</li>
+  <li>لا نبيع أو نؤجّر أو نُشارك بيانات المستخدمين مع أطراف ثالثة لأغراض تسويقية.</li>
+</ul>
+
+<h2>4. أين تُخزَّن البيانات</h2>
+<p>البيانات مُستضافة على خوادم <a href="https://supabase.com" target="_blank">Supabase</a> (بنية تحتية AWS) ومحميّة بـ:</p>
+<ul>
+  <li>تشفير أثناء النقل (TLS 1.2+).</li>
+  <li>تشفير أثناء التخزين (AES-256).</li>
+  <li>سياسات Row Level Security تمنع وصول مستخدم لبيانات مستخدم آخر.</li>
+  <li>تجزئة كلمات المرور بـ bcrypt (لا تُخزَّن كنص صريح).</li>
+</ul>
+<p>إشعارات Push تُرسَل عبر Firebase Cloud Messaging من Google.</p>
+
+<h2>5. مشاركة البيانات مع أطراف ثالثة</h2>
+<p>نستخدم مزوّدي خدمة موثوقين فقط:</p>
+<ul>
+  <li><strong>Supabase</strong> – قاعدة البيانات والمصادقة.</li>
+  <li><strong>Firebase (Google)</strong> – إشعارات Push.</li>
+  <li><strong>Apple APNs</strong> – توصيل الإشعارات على iOS.</li>
+</ul>
+<p>كلٌّ منهم ملتزم بسياسات حماية بيانات معتمدة دولياً.</p>
+
+<h2>6. الاحتفاظ بالبيانات</h2>
+<p>يُحتفظ بالبيانات طوال فترة استخدام الموظف للتطبيق، وتُحذف خلال 30 يوماً من تعطيل الحساب أو بطلب صريح من إدارة الشركة.</p>
+
+<h2>7. حقوق المستخدم</h2>
+<ul>
+  <li>الاطلاع على بياناتك الشخصية المخزّنة.</li>
+  <li>طلب التصحيح أو الحذف.</li>
+  <li>سحب الموافقة على معالجة البيانات (يستوجب تعطيل الحساب).</li>
+</ul>
+<p>للتواصل بشأن أيٍّ من هذه الحقوق راسلنا على البريد أدناه.</p>
+
+<h2>8. الأطفال</h2>
+<p>التطبيق غير موجَّه للأطفال دون 13 عاماً ولا يجمع بيانات منهم.</p>
+
+<h2>9. التغييرات على هذه السياسة</h2>
+<p>قد نُحدِّث هذه السياسة من وقت لآخر. النسخة الحالية ساريَة منذ التاريخ المُدوَّن أعلاه.</p>
+
+<h2>10. التواصل</h2>
+<p>للاستفسارات أو طلبات الخصوصية:<br>
+البريد الإلكتروني: <a href="mailto:support@alfarwania.app">support@alfarwania.app</a></p>
+
+<hr>
+
+<a id="en"></a>
+<div dir="ltr" style="text-align:left;">
+
+<h1>Privacy Policy – Al Farwaniya App</h1>
+<p class="meta">Last updated: May 11, 2026</p>
+
+<p>The <strong>Al Farwaniya</strong> app ("the App", "we", "us") respects user privacy and is committed to protecting personal data. This Policy explains what we collect, how we use it, and your rights.</p>
+
+<h2>1. Nature of the App</h2>
+<p>An internal administrative system used to manage employees, attendance, leave records, and notifications at Al Farwaniya company. Access is restricted to employees and supervisors with accounts created by an administrator; there is no self sign-up.</p>
+
+<h2>2. Data We Collect</h2>
+<table>
+  <thead><tr><th>Data type</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td>Username & password (bcrypt-hashed)</td><td>Authentication</td></tr>
+    <tr><td>Full name, role, department</td><td>Administrative display</td></tr>
+    <tr><td>Attendance & leave records</td><td>Core functionality</td></tr>
+    <tr><td>FCM device token</td><td>Push notifications</td></tr>
+    <tr><td>Audit log (who did what, when)</td><td>Security audit</td></tr>
+  </tbody>
+</table>
+<p>The App does <strong>not</strong> collect: location, contacts, photos (other than ones the user uploads to the Archive feature), camera, or microphone.</p>
+
+<h2>3. How We Use the Data</h2>
+<ul>
+  <li>To operate App features (attendance, leave, notifications).</li>
+  <li>To prevent misuse and track suspicious activity.</li>
+  <li>We do not sell, rent, or share user data with third parties for marketing.</li>
+</ul>
+
+<h2>4. Where Data Is Stored</h2>
+<p>Data is hosted on <a href="https://supabase.com" target="_blank">Supabase</a> (AWS infrastructure) and protected by:</p>
+<ul>
+  <li>TLS 1.2+ in transit.</li>
+  <li>AES-256 at rest.</li>
+  <li>Row-Level Security policies isolating each user.</li>
+  <li>bcrypt password hashing (passwords are never stored in plain text).</li>
+</ul>
+<p>Push notifications are delivered via Firebase Cloud Messaging (Google).</p>
+
+<h2>5. Third-Party Sharing</h2>
+<ul>
+  <li><strong>Supabase</strong> – Database & authentication.</li>
+  <li><strong>Firebase (Google)</strong> – Push notifications.</li>
+  <li><strong>Apple APNs</strong> – iOS notification delivery.</li>
+</ul>
+
+<h2>6. Data Retention</h2>
+<p>Data is retained while the employee uses the App, and deleted within 30 days of account deactivation or upon explicit company request.</p>
+
+<h2>7. Your Rights</h2>
+<ul>
+  <li>Access your stored personal data.</li>
+  <li>Request correction or deletion.</li>
+  <li>Withdraw consent (requires account deactivation).</li>
+</ul>
+
+<h2>8. Children</h2>
+<p>The App is not directed to children under 13 and does not knowingly collect data from them.</p>
+
+<h2>9. Changes</h2>
+<p>We may update this Policy occasionally. The current version is effective as of the date above.</p>
+
+<h2>10. Contact</h2>
+<p>For privacy questions: <a href="mailto:support@alfarwania.app">support@alfarwania.app</a></p>
+
+</div>
+
+</body>
+</html>
