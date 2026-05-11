@@ -75,5 +75,15 @@
 		<false/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>يحتاج التطبيق إلى الوصول إلى الصور لرفع ملفات الأرشيف الخاصة بالموظفين والضباط.</string>
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>يحتاج التطبيق إلى الإذن لحفظ ملفات الأرشيف والتقارير في مكتبة الصور.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>يحتاج التطبيق إلى الكاميرا لمسح وثائق الأرشيف وإرفاقها بملفات الموظفين.</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>لا يستخدم التطبيق الميكروفون بشكل مباشر، لكنه قد يُطلب من قبل بعض مكتبات الوسائط.</string>
+		<key>ITSAppUsesNonExemptEncryption</key>
+		<false/>
 	</dict>
 </plist>
