@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="1024"
+     height="1024"
+     viewBox="0 0 1024 1024"
+     fill="none">
+
+  <defs>
+    <linearGradient id="bg" x1="120" y1="80" x2="920" y2="920" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6FA8F5"/>
+      <stop offset="100%" stop-color="#2F67D8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="220" fill="url(#bg)"/>
+
+  <!-- Traffic light body -->
+  <rect
+    x="392"
+    y="210"
+    width="240"
+    height="604"
+    rx="68"
+    stroke="white"
+    stroke-width="22"
+    fill="none"
+  />
+
+  <!-- Top light -->
+  <circle
+    cx="512"
+    cy="350"
+    r="58"
+    stroke="white"
+    stroke-width="18"
+    fill="none"
+  />
+
+  <path
+    d="M445 310 Q512 255 579 310"
+    stroke="white"
+    stroke-width="18"
+    stroke-linecap="round"
+    fill="none"
+  />
+
+  <!-- Middle light -->
+  <circle
+    cx="512"
+    cy="512"
+    r="58"
+    stroke="white"
+    stroke-width="18"
+    fill="none"
+  />
+
+  <path
+    d="M445 472 Q512 417 579 472"
+    stroke="white"
+    stroke-width="18"
+    stroke-linecap="round"
+    fill="none"
+  />
+
+  <!-- Bottom light -->
+  <circle
+    cx="512"
+    cy="674"
+    r="58"
+    stroke="white"
+    stroke-width="18"
+    fill="none"
+  />
+
+  <path
+    d="M445 634 Q512 579 579 634"
+    stroke="white"
+    stroke-width="18"
+    stroke-linecap="round"
+    fill="none"
+  />
+
+  <!-- Left visors -->
+  <path
+    d="M392 318 Q330 350 392 382"
+    stroke="white"
+    stroke-width="18"
+    stroke-linecap="round"
+    fill="none"
+  />
+
+  <path
+    d="M392 480 Q330 512 392 544"
+    stroke="white"
+    stroke-width="18"
+    stroke-linecap="round"
+    fill="none"
+  />
+
+  <path
+    d="M392 642 Q330 674 392 706"
+    stroke="white"
+    stroke-width="18"
+    stroke-linecap="round"
+    fill="none"
+  />
+
+  <!-- Right visors -->
+  <path
+    d="M632 318 Q694 350 632 382"
+    stroke="white"
+    stroke-width="18"
+    stroke-linecap="round"
+    fill="none"
+  />
+
+  <path
+    d="M632 480 Q694 512 632 544"
+    stroke="white"
+    stroke-width="18"
+    stroke-linecap="round"
+    fill="none"
+  />
+
+  <path
+    d="M632 642 Q694 674 632 706"
+    stroke="white"
+    stroke-width="18"
+    stroke-linecap="round"
+    fill="none"
+  />
+
+</svg>

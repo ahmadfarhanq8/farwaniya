@@ -3,14 +3,14 @@ flutter_launcher_icons:
   ios: true
   image_path: "assets/branding/icon-1024.png"
   remove_alpha_ios: true
-  background_color_ios: "#417DD0"
-  adaptive_icon_background: "#417DD0"
+  background_color_ios: "#2F67D8"
+  adaptive_icon_background: "#2F67D8"
   adaptive_icon_foreground: "assets/branding/icon-1024.png"
 
 flutter_native_splash:
-  color: "#417DD0"
+  color: "#2F67D8"
   android: true
   ios: true
   android_12:
-    color: "#417DD0"
+    color: "#2F67D8"
   fullscreen: false
