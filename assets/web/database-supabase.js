@@ -837,9 +837,9 @@
 
     async function addAccount(data) {
         var sb = _require();
+        // 1) أنشئ السطر في public.accounts (بدون كلمة مرور — الكلمة تُدار في auth.users)
         var res = await sb.rpc('rpc_add_account', {
             p_username : data.username,
-            p_password : data.password || '',
             p_role     : data.role,
             p_person_id: data.personId || null
         });
@@ -848,31 +848,67 @@
             if (msg.indexOf('exists') !== -1) return { error: 'اسم المستخدم مستخدم مسبقاً' };
             return { error: 'فشل في إنشاء الحساب' };
         }
-        return { id: res.data };
+        var newId = res.data;
+        // 2) أنشئ مستخدم Supabase Auth واربطه (يلزم إعطاء كلمة مرور)
+        if (data.password && String(data.password).length >= 6) {
+            try {
+                var fn = await sb.functions.invoke('admin-account-auth', {
+                    body: { action: 'set_password', account_id: newId, password: data.password }
+                });
+                if (fn.error) {
+                    console.warn('admin-account-auth set_password:', fn.error);
+                    // تراجَع: احذف السطر اليتيم لتجنّب حساب بلا auth
+                    try { await sb.rpc('rpc_delete_account', { p_id: newId }); } catch (_) {}
+                    return { error: 'فشل في إعداد كلمة المرور' };
+                }
+            } catch (e) {
+                console.warn('admin-account-auth invoke failed:', e);
+                try { await sb.rpc('rpc_delete_account', { p_id: newId }); } catch (_) {}
+                return { error: 'فشل في إعداد كلمة المرور' };
+            }
+        }
+        return { id: newId };
     }
 
     async function updateAccount(id, data) {
         var sb = _require();
-        // إذا كانت كلمة السر hash من المتصل (مثل ترقيات داخلية)، أرسلها كما هي
-        // لكن RPC الحالي يعيد التشفير. لذلك نمرّر فقط plain text أو null.
-        var pwd = null;
-        if (data.password && !isHashed(data.password)) pwd = data.password;
+        // 1) حدّث الحقول غير الحساسة
         var res = await sb.rpc('rpc_update_account', {
             p_id      : id,
             p_username: data.username,
-            p_role    : data.role,
-            p_password: pwd
+            p_role    : data.role
         });
         if (res.error) {
             var msg = (res.error.message || '').toLowerCase();
             if (msg.indexOf('exists') !== -1) return { error: 'اسم المستخدم مستخدم مسبقاً' };
             return { error: 'فشل في التحديث' };
         }
+        // 2) إذا أُعطيت كلمة مرور جديدة plain، حدّثها عبر Edge Function
+        if (data.password && !isHashed(data.password) && String(data.password).length >= 6) {
+            try {
+                var fn = await sb.functions.invoke('admin-account-auth', {
+                    body: { action: 'set_password', account_id: id, password: data.password }
+                });
+                if (fn.error) {
+                    console.warn('admin-account-auth set_password:', fn.error);
+                    return { error: 'تم تحديث البيانات لكن فشل تحديث كلمة المرور' };
+                }
+            } catch (e) {
+                console.warn('admin-account-auth invoke failed:', e);
+                return { error: 'تم تحديث البيانات لكن فشل تحديث كلمة المرور' };
+            }
+        }
         return { ok: true };
     }
 
     async function deleteAccount(id) {
         var sb = _require();
+        // امسح أولاً مستخدم auth.users (best-effort)، ثم احذف من public.accounts
+        try {
+            await sb.functions.invoke('admin-account-auth', {
+                body: { action: 'delete', account_id: id }
+            });
+        } catch (e) { console.warn('admin-account-auth delete:', e); }
         var res = await sb.rpc('rpc_delete_account', { p_id: id });
         return !res.error;
     }
@@ -884,42 +920,20 @@
         return safe + '@alfarwania.app';
     }
 
-    // يحاول تسجيل الدخول عبر Supabase Auth. عند الفشل يستدعي Edge Function
-    // لتوفير/تحديث مستخدم auth ثم يعيد المحاولة. يفترض أن بيانات الدخول
-    // مُتحقَّق منها مسبقاً عبر rpc_login.
-    async function _ensureAuthSession(username, password) {
-        var sb = _require();
-        var email = _emailFor(username);
-        var first = await sb.auth.signInWithPassword({ email: email, password: password });
-        if (!first.error && first.data && first.data.session) return true;
-
-        // أنشئ/حدّث المستخدم في auth.users عبر Edge Function ثم أعد المحاولة
-        try {
-            var fnRes = await sb.functions.invoke('provision-auth-user', {
-                body: { username: username, password: password }
-            });
-            if (fnRes.error) { console.warn('provision-auth-user:', fnRes.error); return false; }
-        } catch (e) {
-            console.warn('provision-auth-user invoke failed:', e);
-            return false;
-        }
-
-        var second = await sb.auth.signInWithPassword({ email: email, password: password });
-        if (second.error) { console.warn('signInWithPassword retry:', second.error); return false; }
-        return !!(second.data && second.data.session);
-    }
-
+    // تسجيل الدخول مباشرة عبر Supabase Auth (لم تعد rpc_login موجودة).
     async function findAccount(username, password) {
         var sb = _require();
-        var res = await sb.rpc('rpc_login', { p_username: username, p_password: password });
-        if (res.error) { console.warn('rpc_login:', res.error); return null; }
-        var row = Array.isArray(res.data) ? res.data[0] : res.data;
+        var email = _emailFor(username);
+        var auth = await sb.auth.signInWithPassword({ email: email, password: password });
+        if (auth.error || !auth.data || !auth.data.session) {
+            if (auth.error) console.warn('signInWithPassword:', auth.error.message);
+            return null;
+        }
+        // اجلب بيانات الحساب (id/role/person_id) من rpc_me عبر JWT الجديد
+        var me = await sb.rpc('rpc_me');
+        if (me.error) { console.warn('rpc_me:', me.error); return null; }
+        var row = Array.isArray(me.data) ? me.data[0] : me.data;
         if (!row) return null;
-
-        // ربط جلسة Supabase Auth (best-effort — لا نمنع الدخول إذا فشل)
-        try { await _ensureAuthSession(username, password); }
-        catch (e) { console.warn('ensureAuthSession:', e); }
-
         return {
             id        : row.id,
             username  : row.username,
@@ -935,19 +949,13 @@
 
     async function changePassword(username, oldPassword, newPassword) {
         var sb = _require();
-        var res = await sb.rpc('rpc_change_password', {
-            p_username    : username,
-            p_old_password: oldPassword,
-            p_new_password: newPassword
-        });
-        if (res.error) return false;
-        var ok = res.data === true;
-        // زامن كلمة المرور في auth.users حتى يستمر signInWithPassword بالنجاح
-        if (ok) {
-            try { await _ensureAuthSession(username, newPassword); }
-            catch (e) { console.warn('sync auth password:', e); }
-        }
-        return ok;
+        // تحقق من كلمة المرور القديمة عبر إعادة تسجيل دخول مؤقت
+        var email = _emailFor(username);
+        var verify = await sb.auth.signInWithPassword({ email: email, password: oldPassword });
+        if (verify.error || !verify.data || !verify.data.session) return false;
+        var upd = await sb.auth.updateUser({ password: newPassword });
+        if (upd.error) { console.warn('updateUser:', upd.error.message); return false; }
+        return true;
     }
 
     // ═══════════════════════════════════════════════════════════
