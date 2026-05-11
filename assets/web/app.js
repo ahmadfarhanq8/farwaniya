@@ -2826,23 +2826,38 @@ function loadRememberMe() {
 }
 
 function showPostLoginSplash(navigateFn, welcomeName) {
-    // Hide login screen
+    // (Deprecated) — kept for backward compatibility; now navigates directly.
     const loginScreen = document.getElementById('login-screen');
     if (loginScreen) loginScreen.style.display = 'none';
-
-    // Set welcome text
-    const welcomeEl = document.getElementById('pls-welcome-text');
-    if (welcomeEl) welcomeEl.textContent = welcomeName ? `مرحباً، ${welcomeName}` : 'مرحباً بك';
-
-    // Show splash
     const splash = document.getElementById('post-login-splash');
-    if (splash) splash.style.display = 'flex';
+    if (splash) splash.style.display = 'none';
+    Promise.resolve().then(() => navigateFn && navigateFn());
+}
 
-    // Navigate after 3 seconds
-    setTimeout(async () => {
-        if (splash) splash.style.display = 'none';
-        await navigateFn();
-    }, 3000);
+function setLoginButtonLoading(loading) {
+    const btn = document.getElementById('login-button');
+    const uEl = document.getElementById('login-username');
+    const pEl = document.getElementById('login-password');
+    const toggle = document.getElementById('login-pass-toggle');
+    if (btn) {
+        btn.classList.toggle('is-loading', !!loading);
+        btn.disabled = !!loading;
+    }
+    if (uEl) uEl.disabled = !!loading;
+    if (pEl) pEl.disabled = !!loading;
+    if (toggle) toggle.disabled = !!loading;
+}
+
+function togglePasswordVisibility() {
+    const pEl = document.getElementById('login-password');
+    const btn = document.getElementById('login-pass-toggle');
+    if (!pEl) return;
+    const isHidden = pEl.type === 'password';
+    pEl.type = isHidden ? 'text' : 'password';
+    if (btn) {
+        btn.setAttribute('aria-label', isHidden ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور');
+        btn.classList.toggle('is-visible', isHidden);
+    }
 }
 
 async function login() {
@@ -2866,8 +2881,24 @@ async function login() {
         return;
     }
 
-    // أولاً: تحقق من حسابات DB (ضباط وموظفين وإحصائيات وأدمن)
-    const dbAccount = await window.db.findAccount(username, password);
+    if (!username || !password) {
+        if (errorEl) {
+            errorEl.textContent = 'يرجى إدخال اسم المستخدم وكلمة المرور';
+            errorEl.style.display = 'block';
+        }
+        return;
+    }
+
+    if (errorEl) { errorEl.style.display = 'none'; errorEl.textContent = ''; }
+    setLoginButtonLoading(true);
+
+    let dbAccount = null;
+    try {
+        dbAccount = await window.db.findAccount(username, password);
+    } catch (e) {
+        console.error('login error:', e);
+    }
+
     if (dbAccount) {
         delete _loginAttempts[username];
         if (dbAccount.role === 'officer') {
@@ -2879,26 +2910,24 @@ async function login() {
         } else if (dbAccount.role === 'admin') {
             currentUser = { username: dbAccount.username, role: 'admin' };
         }
-        if (currentUser && errorEl) { errorEl.style.display = 'none'; errorEl.textContent = ''; }
         if (currentUser) { saveRememberMe(username, password, rememberEl?.checked); }
         // أعد تحميل البيانات الآن بعد توفر JWT صالح (التحميل الأول قبل الدخول يرجع فارغاً بسبب RLS)
         if (currentUser) {
             try { await loadAllData(); } catch(e) { console.warn('reload after login:', e); }
         }
-        if (currentUser?.role === 'officer') {
-            const off = officers.find(o => o.id == currentUser.officerId) || (await window.db.getOfficers()).find(o => o.id == currentUser.officerId);
-            showPostLoginSplash(() => startOfficerApp(), off?.name);
-            return;
+        // انتقال مباشر — بدون شاشة سبلاش وسيطة
+        try {
+            if (currentUser?.role === 'officer') {
+                await startOfficerApp();
+            } else if (currentUser?.role === 'employee' || currentUser?.role === 'stats') {
+                await startEmployeeApp();
+            } else if (currentUser?.role === 'admin') {
+                await startAdminApp('home');
+            }
+        } finally {
+            setLoginButtonLoading(false);
         }
-        if (currentUser?.role === 'employee' || currentUser?.role === 'stats') {
-            const emp = employees.find(e => e.id == currentUser.employeeId) || (await window.db.getEmployees()).find(e => e.id == currentUser.employeeId);
-            showPostLoginSplash(() => startEmployeeApp(), emp?.name);
-            return;
-        }
-        if (currentUser?.role === 'admin') {
-            showPostLoginSplash(() => startAdminApp('home'), 'المدير');
-            return;
-        }
+        return;
     }
 
     // فشل المصادقة — زر عداد المحاولات
@@ -2914,6 +2943,7 @@ async function login() {
             : 'اسم المستخدم أو كلمة المرور غير صحيحة';
         errorEl.style.display = 'block';
     }
+    setLoginButtonLoading(false);
 }
 
 function logout() {

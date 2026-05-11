@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>💼 أرشيف موظفين فحص فني الفروانية</title>
-    <link rel="stylesheet" href="style.css?v=10">
+    <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
 
@@ -20,11 +20,11 @@
     <div class="login-card">
         <div class="ls-logo-wrap">
             <div class="ls-logo-ring">
-                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="6" y="14" width="36" height="26" rx="4" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
-                    <rect x="14" y="6" width="20" height="10" rx="3" fill="rgba(255,255,255,0.25)" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
-                    <rect x="18" y="28" width="12" height="12" rx="2" fill="rgba(255,255,255,0.5)"/>
-                    <circle cx="24" cy="22" r="3" fill="rgba(255,255,255,0.9)"/>
+                <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <rect x="28" y="10" width="24" height="60" rx="7" fill="#fff"/>
+                    <circle cx="40" cy="24" r="5" fill="#ef4444"/>
+                    <circle cx="40" cy="40" r="5" fill="#f59e0b"/>
+                    <circle cx="40" cy="56" r="5" fill="#10b981"/>
                 </svg>
             </div>
         </div>
@@ -33,19 +33,27 @@
 
         <div class="login-field">
             <label for="login-username">اسم المستخدم</label>
-            <input type="text" id="login-username" placeholder="أدخل اسم المستخدم" autocomplete="off">
+            <input type="text" id="login-username" placeholder="أدخل اسم المستخدم" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
         </div>
 
         <div class="login-field">
             <label for="login-password">كلمة المرور</label>
-            <input type="password" id="login-password" placeholder="أدخل كلمة المرور" autocomplete="off">
+            <div class="login-pass-wrap">
+                <input type="password" id="login-password" placeholder="أدخل كلمة المرور" autocomplete="current-password">
+                <button type="button" id="login-pass-toggle" class="login-pass-toggle" aria-label="إظهار كلمة المرور" onclick="togglePasswordVisibility()">
+                    <svg id="login-pass-eye" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+            </div>
         </div>
 
         <button id="login-button" class="login-btn" onclick="login()">
-            <span class="login-btn-icon">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="login-btn-spinner" aria-hidden="true"></span>
+            <span class="login-btn-content">
+                <span class="login-btn-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="login-btn-label">دخول</span>
             </span>
-            دخول
         </button>
 
         <label class="ls-remember-row" for="login-remember">
@@ -1678,6 +1686,6 @@
     <!-- استبدل database.js بالنسخة السحابية -->
     <script src="database-supabase.js?v=5"></script>
     <script src="assets/chart.min.js"></script>
-    <script src="app.js?v=29"></script>
+    <script src="app.js?v=30"></script>
 </body>
 </html>
