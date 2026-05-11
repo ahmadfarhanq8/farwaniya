@@ -8378,7 +8378,7 @@ function bindEvents() {
 
     // Home quick action buttons
     if (el('btn-home-archive'))         el('btn-home-archive').addEventListener('click', showArchiveChoice);
-    if (el('btn-home-add-permission'))  el('btn-home-add-permission').addEventListener('click', showAddPermissionModal);
+    if (el('btn-home-add-permission'))  el('btn-home-add-permission').addEventListener('click', () => showAddPermissionModal());
     if (el('btn-home-add-leave'))       el('btn-home-add-leave').addEventListener('click', showAddLeaveModal);
     if (el('btn-home-bell'))            el('btn-home-bell').addEventListener('click', () => showPage('notifications'));
 
@@ -8493,7 +8493,7 @@ function bindEvents() {
 
     // Permissions page
     if (el('perm-filter-month'))       el('perm-filter-month').addEventListener('change', renderPermissions);
-    if (el('btn-add-permission-main')) el('btn-add-permission-main').addEventListener('click', showAddPermissionModal);
+    if (el('btn-add-permission-main')) el('btn-add-permission-main').addEventListener('click', () => showAddPermissionModal());
     if (el('perm-btn-print-off'))      el('perm-btn-print-off').addEventListener('click', printOfficersMonthlyReport);
     if (el('perm-btn-print-emp'))      el('perm-btn-print-emp').addEventListener('click', printEmployeesMonthlyReport);
 

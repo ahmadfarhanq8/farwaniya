@@ -95,42 +95,44 @@ void main() async {
     sound: true,
   );
 
-  // الاشتراك في topic - على iOS ننتظر APNS token يكون جاهز
-  try {
-    if (Platform.isIOS) {
-      String? apnsToken;
-      // انتظر حتى 30 ثانية (30 محاولة × ثانية)
-      for (int i = 0; i < 30; i++) {
-        apnsToken = await FirebaseMessaging.instance.getAPNSToken();
-        if (apnsToken != null) break;
-        await Future<void>.delayed(const Duration(seconds: 1));
-      }
-      if (apnsToken != null) {
-        await FirebaseMessaging.instance.subscribeToTopic('morning_shift');
-        // ignore: avoid_print
-        print('✅ Subscribed to morning_shift topic');
+  // الاشتراك في topic — يُنفَّذ في الخلفية حتى لا يؤخر شاشة Launch / فتح التطبيق
+  // ignore: unawaited_futures
+  Future(() async {
+    try {
+      if (Platform.isIOS) {
+        String? apnsToken;
+        // انتظر حتى 30 ثانية (30 محاولة × ثانية) — لكن بالخلفية الآن
+        for (int i = 0; i < 30; i++) {
+          apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+          if (apnsToken != null) break;
+          await Future<void>.delayed(const Duration(seconds: 1));
+        }
+        if (apnsToken != null) {
+          await FirebaseMessaging.instance.subscribeToTopic('morning_shift');
+          // ignore: avoid_print
+          print('✅ Subscribed to morning_shift topic');
+        } else {
+          FirebaseMessaging.instance.onTokenRefresh.listen((_) async {
+            try {
+              await FirebaseMessaging.instance.subscribeToTopic('morning_shift');
+              // ignore: avoid_print
+              print('✅ Subscribed to morning_shift (via onTokenRefresh)');
+            } catch (e) {
+              // ignore: avoid_print
+              print('❌ onTokenRefresh subscription error: $e');
+            }
+          });
+          // ignore: avoid_print
+          print('⚠️ APNS token not ready - registered onTokenRefresh listener');
+        }
       } else {
-        // إذا لم يكن جاهزاً الآن، اشترك عند أول تحديث للـ token
-        FirebaseMessaging.instance.onTokenRefresh.listen((_) async {
-          try {
-            await FirebaseMessaging.instance.subscribeToTopic('morning_shift');
-            // ignore: avoid_print
-            print('✅ Subscribed to morning_shift (via onTokenRefresh)');
-          } catch (e) {
-            // ignore: avoid_print
-            print('❌ onTokenRefresh subscription error: $e');
-          }
-        });
-        // ignore: avoid_print
-        print('⚠️ APNS token not ready - registered onTokenRefresh listener');
+        await FirebaseMessaging.instance.subscribeToTopic('morning_shift');
       }
-    } else {
-      await FirebaseMessaging.instance.subscribeToTopic('morning_shift');
+    } catch (e) {
+      // ignore: avoid_print
+      print('❌ FCM subscription error: $e');
     }
-  } catch (e) {
-    // ignore: avoid_print
-    print('❌ FCM subscription error: $e');
-  }
+  });
 
   runApp(const MyApp());
 }
