@@ -2881,6 +2881,10 @@ async function login() {
         }
         if (currentUser && errorEl) { errorEl.style.display = 'none'; errorEl.textContent = ''; }
         if (currentUser) { saveRememberMe(username, password, rememberEl?.checked); }
+        // أعد تحميل البيانات الآن بعد توفر JWT صالح (التحميل الأول قبل الدخول يرجع فارغاً بسبب RLS)
+        if (currentUser) {
+            try { await loadAllData(); } catch(e) { console.warn('reload after login:', e); }
+        }
         if (currentUser?.role === 'officer') {
             const off = officers.find(o => o.id == currentUser.officerId) || (await window.db.getOfficers()).find(o => o.id == currentUser.officerId);
             showPostLoginSplash(() => startOfficerApp(), off?.name);
@@ -8493,6 +8497,9 @@ document.addEventListener('DOMContentLoaded', async function(){
         if (window.db && typeof window.db.restoreSession === 'function') {
             const acc = await window.db.restoreSession();
             if (acc && acc.role) {
+                // أعد تحميل البيانات الآن بعد أن أصبح لدينا JWT صالح
+                // (التحميل الأول قبل تسجيل الدخول يرجع فارغاً بسبب RLS)
+                try { await loadAllData(); } catch(e) { console.warn('reload after restore:', e); }
                 if (acc.role === 'officer') {
                     currentUser = { username: acc.username, role: 'officer', officerId: acc.personId };
                     await startOfficerApp();
