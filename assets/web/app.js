@@ -8488,6 +8488,36 @@ document.addEventListener('DOMContentLoaded', async function(){
     } catch(e) { console.error('Session restore error:', e); }
     // ──────────────────────────────────────────────────
 
+    // ─── استعادة الجلسة من Supabase (بدء بارد، مثل فتح التطبيق من تنبيه FCM) ───
+    try {
+        if (window.db && typeof window.db.restoreSession === 'function') {
+            const acc = await window.db.restoreSession();
+            if (acc && acc.role) {
+                if (acc.role === 'officer') {
+                    currentUser = { username: acc.username, role: 'officer', officerId: acc.personId };
+                    await startOfficerApp();
+                    return;
+                }
+                if (acc.role === 'employee') {
+                    currentUser = { username: acc.username, role: 'employee', employeeId: acc.personId };
+                    await startEmployeeApp();
+                    return;
+                }
+                if (acc.role === 'stats') {
+                    currentUser = { username: acc.username, role: 'stats', employeeId: acc.personId };
+                    await startEmployeeApp();
+                    return;
+                }
+                if (acc.role === 'admin') {
+                    currentUser = { username: acc.username, role: 'admin' };
+                    await startAdminApp('home');
+                    return;
+                }
+            }
+        }
+    } catch(e) { console.error('Supabase session restore error:', e); }
+    // ──────────────────────────────────────────────────────────────────
+
     showLoginScreen();
     loadRememberMe();
 

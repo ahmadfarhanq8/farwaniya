@@ -947,6 +947,29 @@
         try { var sb = _require(); await sb.auth.signOut(); } catch (e) {}
     }
 
+    // يستعيد الحساب الحالي من جلسة Supabase المحفوظة في localStorage الخاصة بـ WebView.
+    // يُستخدم عند بدء التشغيل البارد (مثلاً عند فتح التطبيق من تنبيه FCM).
+    async function restoreSession() {
+        var sb = _require();
+        try {
+            var s = await sb.auth.getSession();
+            if (!s || !s.data || !s.data.session) return null;
+        } catch (e) { return null; }
+        try {
+            var me = await sb.rpc('rpc_me');
+            if (me.error) { console.warn('rpc_me:', me.error); return null; }
+            var row = Array.isArray(me.data) ? me.data[0] : me.data;
+            if (!row) return null;
+            return {
+                id        : row.id,
+                username  : row.username,
+                role      : row.role,
+                person_id : row.person_id,
+                personId  : row.person_id
+            };
+        } catch (e) { return null; }
+    }
+
     async function changePassword(username, oldPassword, newPassword) {
         var sb = _require();
         // تحقق من كلمة المرور القديمة عبر إعادة تسجيل دخول مؤقت
@@ -1183,6 +1206,7 @@
         findAccount: findAccount,
         changePassword: changePassword,
         logout: logout,
+        restoreSession: restoreSession,
         hashPassword: hashPassword,
         verifyPassword: verifyPassword,
         isHashed: isHashed,
