@@ -744,6 +744,11 @@
         await sb.from('admin_notifications_store').upsert({ month: month, data: arr }, { onConflict: 'month' });
     }
 
+    async function appendAdminNotification(notif) {
+        var sb = _require();
+        await sb.rpc('rpc_append_admin_notification', { p_notif: notif });
+    }
+
     // ═══════════════════════════════════════════════════════════
     // FCM Push Notifications
     // ═══════════════════════════════════════════════════════════
@@ -1186,6 +1191,7 @@
         // Admin Notifications
         getAdminNotifications: getAdminNotifications,
         saveAdminNotifications: saveAdminNotifications,
+        appendAdminNotification: appendAdminNotification,
         // FCM Push Notifications
         saveFCMToken: saveFCMToken,
         sendPushNotificationToAdmin: sendPushNotificationToAdmin,

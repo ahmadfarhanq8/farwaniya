@@ -336,7 +336,7 @@ function openAdminNotificationDetail(id, skipListRefresh = false) {
 }
 
 async function addAdminNotification({ type, personName, requestType, date, refId }) {
-    adminNotifications.unshift({
+    const newNotif = {
         id: Date.now(),
         type,
         personName,
@@ -345,8 +345,14 @@ async function addAdminNotification({ type, personName, requestType, date, refId
         refId,
         read: false,
         createdAt: new Date().toISOString()
-    });
-    await saveNotificationsToStorage();
+    };
+    adminNotifications.unshift(newNotif);
+    // الأدمن يحفظ الـ array كاملاً — غير الأدمن يُضيف فقط (بصلاحية INSERT)
+    if (currentUser && currentUser.role === 'admin') {
+        await saveNotificationsToStorage();
+    } else {
+        try { await window.db.appendAdminNotification(newNotif); } catch(e) { console.warn('appendAdminNotification error:', e); }
+    }
     updateBellBadge();
     // إرسال push notification للمدير حتى لو خارج التطبيق
     const typeLabel = type === 'leave' ? 'إجازة' : type === 'permission' ? 'استئذان' : 'طلب آخر';
